@@ -33,33 +33,45 @@ def set_duty_cycle(vesc, duty_cycle):
     vesc.set_duty_cycle(duty_cycle)
 
 
+def handle_events(updated):
+    """
+    Handle the updated gamepad events.
+
+    :param updated: List of tuples containing the event code and state.
+    """
+    for code, state in updated:
+        if code == 'ABS_Y':
+            print(f"Left Joystick Vertical Axis: {state}")
+        elif code == 'ABS_X':
+            print(f"Left Joystick Horizontal Axis: {state}")
+        elif code == 'BTN_SOUTH':
+            print("Button South pressed")
+        elif code == 'BTN_NORTH':
+            print("Button North pressed")
+        elif code == 'BTN_EAST':
+            print("Button East pressed")
+        elif code == 'BTN_WEST':
+            print("Button West pressed")
+        elif code == 'BTN_TL':
+            print("Left Trigger pressed")
+        elif code == 'BTN_TR':
+            print("Right Trigger pressed")
+
 def main():
     gamepad_input = GamepadInput()
-    vesc = VESC(serial_port=PORT)
+    # vesc = VESC(serial_port=PORT)
     # vesc.set_duty_cycle(0.01)
 
     # Main loop to continuously update and print gamepad state
     try:
         while True:
             updated = gamepad_input.update()
-            for code, state in updated:
-                if code == 'ABS_Y':
-                    # Assuming ABS_Y is the left joystick vertical axis
-                    duty_cycle = -state / 32767.0
-                    duty_cycle = duty_cycle * 0.1
-                    print(f"Setting duty cycle to: {duty_cycle}")
-                    set_duty_cycle(vesc, duty_cycle)
-                elif code == 'ABS_X':
-                    # Assuming ABS_X is the left joystick horizontal axis
-                    servo_position = (state + 32767) / 65534.0
-                    servo_position = max(0.0, min(1.0, servo_position))
-                    print(f"Setting servo position to: {servo_position}")
-                    set_servo_position(vesc, servo_position)
+            handle_events(updated)
     except KeyboardInterrupt:
         print("Exiting...")
 
-    vesc.set_duty_cycle(0)
-    vesc.set_servo_position(0)
+    # vesc.set_duty_cycle(0)
+    # vesc.set_servo_position(0)
 
 if __name__ == "__main__":
     main()
