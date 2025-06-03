@@ -83,7 +83,7 @@ def main():
     try:
         while True:
             updated = gamepad_input.update()
-            handle_events(updated)
+            handle_events(updated, vesc)
     except KeyboardInterrupt:
         print("Exiting...")
 
