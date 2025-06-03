@@ -46,16 +46,28 @@ def handle_events(updated):
             print(f"Left Joystick Horizontal Axis: {state}")
         elif code == 'BTN_SOUTH':
             print("Button South pressed")
-        elif code == 'BTN_NORTH':
+        elif code == 'BTN_WEST':
             print("Button North pressed")
         elif code == 'BTN_EAST':
             print("Button East pressed")
-        elif code == 'BTN_WEST':
+        elif code == 'BTN_NORTH':
             print("Button West pressed")
         elif code == 'BTN_TL':
             print("Left Trigger pressed")
         elif code == 'BTN_TR':
             print("Right Trigger pressed")
+        elif code == 'BTN_THUMBL':
+            print("Left Thumb pressed")
+        elif code == 'BTN_THUMBR':
+            print("Right Thumb pressed")
+        elif code == 'ABS_RX':
+            print(f"Right Joystick Horizontal Axis: {state}")
+        elif code == 'ABS_RY':
+            print(f"Right Joystick Vertical Axis: {state}")
+        elif code == 'ABS_Z':
+            print(f"Left Trigger Axis: {state}")
+        elif code == 'ABS_RZ':
+            print(f"Right Trigger Axis: {state}")
 
 def main():
     gamepad_input = GamepadInput()
