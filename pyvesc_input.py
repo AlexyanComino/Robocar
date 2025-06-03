@@ -25,7 +25,7 @@ def set_duty_cycle(vesc, duty_cycle):
     :param vesc: The VESC instance to send the command to.
     :param duty_cycle: The desired duty cycle (-1.0 to 1.0).
     """
-    limit = 0.1
+    limit = 0.3
     duty_cycle *= limit
     if duty_cycle < -limit:
         duty_cycle = -limit
@@ -78,7 +78,6 @@ def handle_events(updated, vesc):
 def main():
     gamepad_input = GamepadInput()
     vesc = VESC(serial_port=PORT)
-    vesc.set_duty_cycle(0.01)
 
     try:
         while True:
