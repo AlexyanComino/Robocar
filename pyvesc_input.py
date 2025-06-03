@@ -26,6 +26,7 @@ def set_duty_cycle(vesc, duty_cycle):
     :param duty_cycle: The desired duty cycle (-1.0 to 1.0).
     """
     limit = 0.1
+    duty_cycle *= limit
     if duty_cycle < -limit:
         duty_cycle = -limit
     elif duty_cycle > limit:
@@ -44,6 +45,9 @@ def handle_events(updated):
             print(f"Left Joystick Vertical Axis: {state}")
         elif code == 'ABS_X':
             print(f"Left Joystick Horizontal Axis: {state}")
+            position = (state + 32768) / 65535.0
+            position = max(0.0, min(1.0, position))  # Clamp to [0.0, 1.0]
+            print(f"Servo Position: {position}")
         elif code == 'BTN_SOUTH':
             print("Button South pressed")
         elif code == 'BTN_WEST':
@@ -66,8 +70,10 @@ def handle_events(updated):
             print(f"Right Joystick Vertical Axis: {state}")
         elif code == 'ABS_Z':
             print(f"Left Trigger Axis: {state}")
+            # set_duty_cycle(vesc, -state / 255.0)
         elif code == 'ABS_RZ':
             print(f"Right Trigger Axis: {state}")
+            # set_duty_cycle(vesc, state / 255.0)
 
 def main():
     gamepad_input = GamepadInput()
