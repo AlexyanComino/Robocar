@@ -60,3 +60,16 @@ class Car:
         elif position > 1.0:
             position = 1.0
         self.vesc.set_servo(position)
+
+    def increment_power_limit(self, increment):
+        """
+        Increment the power limit by a specified amount.
+
+        :param increment: The amount to increment the power limit.
+        """
+        new_limit = self.power_limit + increment
+        if new_limit < 0.01:
+            new_limit = 0.01
+        if new_limit > 0.5:
+            new_limit = 0.5
+        self.set_power_limit(new_limit)

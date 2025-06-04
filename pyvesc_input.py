@@ -43,6 +43,8 @@ def handle_events(updated, car):
         elif code == 'ABS_RZ':
             print(f"Right Trigger Axis: {state}")
             car.set_duty_cycle(state / 255.0)
+        elif code == 'ABS_HAT0Y':
+            car.increment_power_limit(-state / 100)
         else:
             print(f"Unhandled event: {code} with state {state}")
 
