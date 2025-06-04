@@ -70,15 +70,14 @@ def main():
 
     try:
         while not should_exit:
-            print("Should exit:", should_exit + random.randint(0, 100))
+            print("Should exit:", should_exit, f"{ random.randint(0, 100)}")
             updated = gamepad_input.update()
             handle_events(updated, car)
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
         car.set_duty_cycle(0)
-        car.set_servo(0)
-        sys.exit(0)
+        car.set_servo(0.5)
 
 if __name__ == "__main__":
     main()
