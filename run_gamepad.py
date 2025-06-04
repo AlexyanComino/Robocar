@@ -10,7 +10,7 @@ should_exit = False
 
 def handle_sigterm(signum, frame):
     global should_exit
-    print("Received SIGTERM, exiting gracefully...")
+    print(f"Received signal {signum}, preparing to exit...")
     should_exit = True
 
 def handle_events(updated, car):
