@@ -74,6 +74,7 @@ def handle_events(updated, vesc, limit):
             set_duty_cycle(vesc, state / 255.0, limit)
         elif code == 'ABS_HAT0Y':
             limit -= state / 100
+            print(f"Limit adjusted to: {limit}")
         else:
             print(f"Unhandled event: {code} with state {state}")
 
@@ -87,6 +88,7 @@ def main():
     try:
         while True:
             updated = gamepad_input.update()
+            print(f"Current limit: {limit}")
             limit = handle_events(updated, vesc, limit)
     except KeyboardInterrupt:
         print("Exiting...")
