@@ -1,13 +1,13 @@
 #!/bin/bash
 
-VENV_NAME="venv"
-
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
 BLUE='\033[0;34m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
 RESET='\033[0m'
+
+VENV_NAME=".venv"
 
 echo -e "${YELLOW}Setting up Python virtual environment...${RESET}"
 
