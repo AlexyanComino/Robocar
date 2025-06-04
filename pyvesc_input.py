@@ -39,10 +39,10 @@ def handle_events(updated, car):
             print(f"Right Joystick Vertical Axis: {state}")
         elif code == 'ABS_Z':
             print(f"Left Trigger Axis: {state}")
-            car.set_duty_cycle(car, -state / 255.0)
+            car.set_duty_cycle(-state / 255.0)
         elif code == 'ABS_RZ':
             print(f"Right Trigger Axis: {state}")
-            car.set_duty_cycle(car, state / 255.0)
+            car.set_duty_cycle(state / 255.0)
         else:
             print(f"Unhandled event: {code} with state {state}")
 
