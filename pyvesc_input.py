@@ -2,6 +2,7 @@ from gamepad_inputs import GamepadInput
 from car import Car
 
 PORT = "/dev/ttyACM0"
+print(f"Using port: {PORT}")
 
 def handle_events(updated, car):
     """
