@@ -45,6 +45,7 @@ def handle_events(updated, car):
             car.set_duty_cycle(state / 255.0)
         elif code == 'ABS_HAT0Y':
             car.increment_power_limit(-state / 100)
+            print(f"New power limit: {car.get_power_limit()}")
         else:
             print(f"Unhandled event: {code} with state {state}")
 
