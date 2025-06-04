@@ -28,6 +28,7 @@ mkdir -p "$(dirname "$LOGFILE")"
 
     if [ -f "$PIDFILE" ]; then
         PID=$(cat "$PIDFILE")
+        echo "$(date) [DEBUG] Found PID file: $PIDFILE with PID $PID"
         if kill -0 "$PID" 2>/dev/null; then
             if ps -p "$PID" -o args= | grep -q "$SCRIPT_NAME"; then
                 RUNNING_PID="$PID"
@@ -53,7 +54,7 @@ mkdir -p "$(dirname "$LOGFILE")"
             echo "$(date) [INFO] No SSH users detected and script is not running. Starting $SCRIPT_NAME..."
             source "$VENV_NAME/bin/activate"
 
-            nohup python "$SCRIPT_NAME" >> "$BASE_DIR/python.log" 2>&1 &
+            nohup python "$SCRIPT_NAME" >> "$LOGFILE" 2>&1 &
             echo $! > "$PIDFILE"
             echo "$(date) [INFO] Script started with PID $!"
         else
