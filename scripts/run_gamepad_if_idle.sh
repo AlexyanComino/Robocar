@@ -69,8 +69,9 @@ mkdir -p "$(dirname "$LOGFILE")"
             echo "$(date) [INFO] SSH users detected, but script is not running."
         fi
     fi
+
+    echo "$(date) [INFO] run_gamepad_if_idle.sh script completed."
+    echo "$(pgrep -f "$SCRIPT_NAME")"
 } >> "$LOGFILE" 2>&1
 
-echo "$(date) [INFO] run_gamepad_if_idle.sh script completed."
-echo "$(pgrep -f "$SCRIPT_NAME")"
 exit 0
