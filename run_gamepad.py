@@ -1,8 +1,17 @@
+import signal
+import sys
+
 from gamepad_inputs import GamepadInput
 from car import Car
 
 PORT = "/dev/ttyACM0"
-print(f"Using port: {PORT}")
+
+should_exit = False
+
+def handle_sigterm(signum, frame):
+    global should_exit
+    print("Received SIGTERM, exiting gracefully...")
+    should_exit = True
 
 def handle_events(updated, car):
     """
@@ -51,19 +60,22 @@ def handle_events(updated, car):
             print(f"Unhandled event: {code} with state {state}")
 
 def main():
-    print("Starting gamepad input handler...")
     gamepad_input = GamepadInput()
     car = Car(port=PORT, power_limit=0.1)
 
+    signal.signal(signal.SIGTERM, handle_sigterm)
+    signal.signal(signal.SIGINT, handle_sigterm)
+
     try:
-        while True:
+        while not should_exit:
             updated = gamepad_input.update()
             handle_events(updated, car)
-    except KeyboardInterrupt:
-        print("Exiting...")
-
-    # vesc.set_duty_cycle(0)
-    # vesc.set_servo_position(0)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        car.set_duty_cycle(0)
+        car.set_servo(0)
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()
