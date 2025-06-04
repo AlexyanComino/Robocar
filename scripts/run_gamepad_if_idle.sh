@@ -27,6 +27,7 @@ mkdir -p "$(dirname "$LOGFILE")"
     source "$VENV_NAME/bin/activate"
 
     SSH_USERS=$(who | grep -E "pts|ssh" | wc -l)
+    SSH_USERS="0"
 
     if [ -f "$PIDFILE" ]; then
         PID=$(cat "$PIDFILE")
