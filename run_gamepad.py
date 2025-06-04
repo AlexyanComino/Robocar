@@ -69,9 +69,14 @@ def main():
     signal.signal(signal.SIGINT, handle_sigterm)
 
     try:
+        print("Initializing gamepad input...")
         while not should_exit:
+            print("Waiting for gamepad input...")
             updated = gamepad_input.update()
+            print(f"Updated events: {updated}")
             handle_events(updated, car)
+            print("Processing next gamepad input...")
+        print("Exiting main loop, preparing to stop car.")
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
