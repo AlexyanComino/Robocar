@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VENV_NAME="gamepad_env"
+VENV_NAME="venv"
 
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
@@ -15,19 +15,19 @@ if [ ! -d "$VENV_NAME" ]; then
     python3 -m venv "$VENV_NAME"
     echo -e "${GREEN}[OK] Virtual environment created: $VENV_NAME${RESET}"
 else
-    echo -e "$[INFO] Virtual environment already exists: $VENV_NAME"
+    echo -e "${CYAN}[INFO] Virtual environment already exists: $VENV_NAME${RESET}"
 fi
 
-echo -e "$[INFO] Activating virtual environment..."
+echo -e "${CYAN}[INFO] Activating virtual environment...${RESET}"
 source "$VENV_NAME/bin/activate"
 
 if [ -f "requirements.txt" ]; then
-    echo -e "$[INFO] Install dependencies..."
-    pip install --upgrade pip
-    pip install -r requirements.txt
+    echo -e "${CYAN}[INFO] Installing dependencies...${RESET}"
+    python -m pip install --upgrade pip setuptools wheel
+    python -m pip install -r requirements.txt
     echo -e "${GREEN}[OK] Dependencies installed successfully!${RESET}"
 else
-    echo -e "${RED}[WARN] Aucun fichier requirements.txt trouvé.${RESET}"
+    echo -e "${RED}[WARNING] requirements.txt not found. Skipping dependency installation.${RESET}"
 fi
 
 echo -e "${GREEN}[DONE] Setup completed successfully!${RESET}"
