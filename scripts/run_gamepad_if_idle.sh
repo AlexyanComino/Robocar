@@ -28,7 +28,7 @@ mkdir -p "$(dirname "$LOGFILE")"
     SSH_USERS=$(who | grep -E "pts|ssh" | wc -l)
 
     RUNNING_PID=$(pgrep -f "$SCRIPT_NAME")
-
+    echo "$(date) [DEBUG] Current running PID: $RUNNING_PID"
     echo "$(date) [DEBUG] Running PIDs: $(pgrep -f "pyvesc_input.py" | tr '\n' ' ')" >> "$LOGFILE"
 
     if [ "$SSH_USERS" -eq 0 ]; then
@@ -36,6 +36,7 @@ mkdir -p "$(dirname "$LOGFILE")"
             echo "$(date) [INFO] No SSH users detected and script is not running. Starting $SCRIPT_NAME..."
             nohup python "$SCRIPT_NAME" >> "$LOGFILE" 2>&1 &
             echo "$(date) [INFO] Script started with PID $!"
+            echo "$(pgrep -f "$SCRIPT_NAME")"
         else
             echo "$(date) [INFO] No SSH users detected, but script is already running with PID $RUNNING_PID."
         fi
