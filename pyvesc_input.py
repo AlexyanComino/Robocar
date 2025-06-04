@@ -74,6 +74,10 @@ def handle_events(updated, vesc, limit):
             set_duty_cycle(vesc, state / 255.0, limit)
         elif code == 'ABS_HAT0Y':
             limit -= state / 100
+            if limit < 0.01:
+                limit = 0.01
+            elif limit > 0.5:
+                limit = 0.5
             print(f"Limit adjusted to: {limit}")
         else:
             print(f"Unhandled event: {code} with state {state}")
