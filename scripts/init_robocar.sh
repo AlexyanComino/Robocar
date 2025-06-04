@@ -1,9 +1,8 @@
 #!/bin/bash
 
-LOG_DIR="logs"
-mkdir -p "$LOG_DIR"
+BASE_DIR="/home/robocar/Robocar"
 
 echo -e "$[INFO] Pulling latest code from Git..."
 git pull origin main
 
-./setup_venv.sh
+$BASE_DIR/setup_venv.sh
