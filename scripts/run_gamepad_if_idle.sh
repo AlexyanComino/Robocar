@@ -2,7 +2,7 @@
 
 BASE_DIR="/home/robocar/Robocar"
 LOGFILE="$BASE_DIR/logs/run_gamepad_if_idle.log"
-SCRIPT_PATH="$BASE_DIR/pyvesc_input.py"
+SCRIPT_NAME="$BASE_DIR/pyvesc_input.py"
 VENV_NAME="$BASE_DIR/.venv"
 PYTHON_BIN="$VENV_NAME/bin/python"
 
