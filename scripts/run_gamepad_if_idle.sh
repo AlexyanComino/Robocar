@@ -54,7 +54,7 @@ mkdir -p "$(dirname "$LOGFILE")"
             echo "$(date) [INFO] No SSH users detected and script is not running. Starting $SCRIPT_NAME..."
             source "$VENV_NAME/bin/activate"
 
-            nohup python "$SCRIPT_NAME" >> "$LOGFILE" 2>&1 &
+            nohup python -u "$SCRIPT_NAME" >> "$BASE_DIR/logs/pyvesc_input.out.log" 2>> "$BASE_DIR/logs/pyvesc_input.err.log" &
             echo $! > "$PIDFILE"
             echo "$(date) [INFO] Script started with PID $!"
         else
