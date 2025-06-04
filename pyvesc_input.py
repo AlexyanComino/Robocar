@@ -29,6 +29,7 @@ def set_duty_cycle(vesc, duty_cycle, limit=0.3):
         duty_cycle = -limit
     elif duty_cycle > limit:
         duty_cycle = limit
+    print(duty_cycle)
     vesc.set_duty_cycle(duty_cycle)
 
 
