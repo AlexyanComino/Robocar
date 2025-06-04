@@ -59,6 +59,8 @@ def handle_events(updated, car):
         else:
             print(f"Unhandled event: {code} with state {state}")
 
+import random
+
 def main():
     gamepad_input = GamepadInput()
     car = Car(port=PORT, power_limit=0.1)
@@ -68,6 +70,7 @@ def main():
 
     try:
         while not should_exit:
+            print("Should exit:", should_exit + random.randint(0, 100))
             updated = gamepad_input.update()
             handle_events(updated, car)
     except Exception as e:
