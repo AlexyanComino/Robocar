@@ -17,23 +17,23 @@ def set_servo_position(vesc, position):
     vesc.set_servo(position)
 
 
-def set_duty_cycle(vesc, duty_cycle, limit=0.3):
+def set_duty_cycle(vesc, duty_cycle):
     """
     Set the duty cycle on the VESC.
 
     :param vesc: The VESC instance to send the command to.
     :param duty_cycle: The desired duty cycle (-1.0 to 1.0).
     """
+    limit = 0.3
     duty_cycle *= limit
     if duty_cycle < -limit:
         duty_cycle = -limit
     elif duty_cycle > limit:
         duty_cycle = limit
-    print(duty_cycle)
     vesc.set_duty_cycle(duty_cycle)
 
 
-def handle_events(updated, vesc, limit):
+def handle_events(updated, vesc):
     """
     Handle the updated gamepad events.
 
@@ -69,32 +69,19 @@ def handle_events(updated, vesc, limit):
             print(f"Right Joystick Vertical Axis: {state}")
         elif code == 'ABS_Z':
             print(f"Left Trigger Axis: {state}")
-            set_duty_cycle(vesc, -state / 255.0, limit)
+            set_duty_cycle(vesc, -state / 255.0)
         elif code == 'ABS_RZ':
             print(f"Right Trigger Axis: {state}")
-            set_duty_cycle(vesc, state / 255.0, limit)
-        elif code == 'ABS_HAT0Y':
-            limit -= state / 100
-            if limit < 0.01:
-                limit = 0.01
-            elif limit > 0.5:
-                limit = 0.5
-            print(f"Limit adjusted to: {limit}")
-        else:
-            print(f"Unhandled event: {code} with state {state}")
-
-    return limit
+            set_duty_cycle(vesc, state / 255.0)
 
 def main():
     gamepad_input = GamepadInput()
     vesc = VESC(serial_port=PORT)
-    limit = 0.1
 
     try:
         while True:
             updated = gamepad_input.update()
-            print(f"Current limit: {limit}")
-            limit = handle_events(updated, vesc, limit)
+            handle_events(updated, vesc)
     except KeyboardInterrupt:
         print("Exiting...")
 
