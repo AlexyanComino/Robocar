@@ -10,7 +10,7 @@ RESET='\033[0m'
 mkdir -p "$(dirname "$LOGFILE")"
 
 {
-    echo -ne "$YELLOW$(date) Checking SSH session status...$RESET"
+    echo -e "$YELLOW$(date) Checking SSH session status...$RESET"
 
     SSH_USERS=$(who | grep -E "pts|ssh" | wc -l)
 
