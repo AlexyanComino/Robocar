@@ -1,7 +1,9 @@
 from pyvesc import VESC
 
+MAX_LIMIT = 0.3
+
 class Car:
-    def __init__(self, port, power_limit=0.3):
+    def __init__(self, port, power_limit=MAX_LIMIT):
         """
         Initialize the Car instance.
 
@@ -15,7 +17,7 @@ class Car:
     def get_vesc(self):
         """
         Get the VESC instance.
-
+    
         :return: The VESC instance.
         """
         return self.vesc
@@ -70,6 +72,6 @@ class Car:
         new_limit = self.power_limit + increment
         if new_limit < 0.01:
             new_limit = 0.01
-        if new_limit > 0.5:
-            new_limit = 0.5
+        if new_limit > MAX_LIMIT:
+            new_limit = MAX_LIMIT
         self.set_power_limit(new_limit)
