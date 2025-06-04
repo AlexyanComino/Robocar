@@ -2,76 +2,32 @@
 
 BASE_DIR="/home/robocar/Robocar"
 LOGFILE="$BASE_DIR/logs/run_gamepad_if_idle.log"
-SCRIPT_NAME="$BASE_DIR/pyvesc_input.py"
-VENV_NAME="$BASE_DIR/.venv"
-PIDFILE="$BASE_DIR/pyvesc_input.pid"
+SERVICE_NAME="run_gamepad.service"
 
 mkdir -p "$(dirname "$LOGFILE")"
 
 {
-    echo "$(date) [INFO] Starting run_gamepad_if_idle.sh script..."
-
-    if [ ! -f "$SCRIPT_NAME" ]; then
-        echo "$(date) [ERROR] Script $SCRIPT_NAME not found!"
-        exit 1
-    fi
-
-    echo "$(date) [INFO] Checking for Python virtual environment..."
-
-    if [ ! -d "$VENV_NAME" ]; then
-        echo "$(date) [ERROR] Virtual environment $VENV_NAME not found! Please run setup_venv.sh first."
-        exit 1
-    fi
+    echo "$(date) [INFO] Checking SSH session status..."
 
     SSH_USERS=$(who | grep -E "pts|ssh" | wc -l)
     SSH_USERS="0"
 
-    if [ -f "$PIDFILE" ]; then
-        PID=$(cat "$PIDFILE")
-        echo "$(date) [DEBUG] Found PID file: $PIDFILE with PID $PID"
-        if kill -0 "$PID" 2>/dev/null; then
-            if ps -p "$PID" -o args= | grep -q "$SCRIPT_NAME"; then
-                RUNNING_PID="$PID"
-            else
-                echo "$(date) [WARN] PID $PID does not match expected script. Cleaning up stale PID file."
-                rm -f "$PIDFILE"
-                RUNNING_PID=""
-            fi
-        else
-            RUNNING_PID=""
-            rm -f "$PIDFILE"
-            echo "$(date) [WARN] PID $PID is not running. Cleaning up stale PID file."
-        fi
-    else
-        RUNNING_PID=""
-    fi
-
-    echo "$(date) [DEBUG] Current running PID: $RUNNING_PID"
-
     if [ "$SSH_USERS" -eq 0 ]; then
-        if [ -z "$RUNNING_PID" ]; then
-            echo "$(date) [INFO] Activating virtual environment $VENV_NAME..."
-            echo "$(date) [INFO] No SSH users detected and script is not running. Starting $SCRIPT_NAME..."
-            source "$VENV_NAME/bin/activate"
-
-            nohup python -u "$SCRIPT_NAME" >> "$BASE_DIR/logs/pyvesc_input.out.log" 2>> "$BASE_DIR/logs/pyvesc_input.err.log" &
-            echo $! > "$PIDFILE"
-            echo "$(date) [INFO] Script started with PID $!"
+        if ! systemctl is-active --quiet "$SERVICE_NAME"; then
+            echo "$(date) [INFO] No SSH sessions detected. Starting $SERVICE_NAME service..."
+            sudo systemctl start "$SERVICE_NAME"
         else
-            echo "$(date) [INFO] No SSH users detected, but script is already running with PID $RUNNING_PID."
+            echo "$(date) [INFO] No SSH users detected, but $SERVICE_NAME is already running."
         fi
     else
-        if [ -n "$RUNNING_PID" ]; then
-            echo "$(date) [INFO] SSH users detected, stopping script with PID $RUNNING_PID."
-            kill "$RUNNING_PID"
-            rm -f "$PIDFILE"
+        if systemctl is-active --quiet "$SERVICE_NAME"; then
+            echo "$(date) [INFO] SSH users detected. Stopping $SERVICE_NAME service..."
+            sudo systemctl stop "$SERVICE_NAME"
         else
-            echo "$(date) [INFO] SSH users detected, but script is not running."
+            echo "$(date) [INFO] SSH users detected, but $SERVICE_NAME is not running."
         fi
     fi
-
-    echo "$(date) [INFO] run_gamepad_if_idle.sh script completed."
-    echo "$(pgrep -f "$SCRIPT_NAME")"
+    
 } >> "$LOGFILE" 2>&1
 
 exit 0
