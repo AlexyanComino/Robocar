@@ -23,6 +23,7 @@ mkdir -p "$(dirname "$LOGFILE")"
         exit 1
     fi
 
+    echo "$(date) [INFO] Activating virtual environment $VENV_NAME..."
     source "$VENV_NAME/bin/activate"
 
     SSH_USERS=$(who | grep -E "pts|ssh" | wc -l)
@@ -33,6 +34,7 @@ mkdir -p "$(dirname "$LOGFILE")"
         if [ -z "$RUNNING_PID" ]; then
             echo "$(date) [INFO] No SSH users detected and script is not running. Starting $SCRIPT_NAME..."
             nohup "$PYTHON_BIN" "$SCRIPT_NAME" >> "$LOGFILE" 2>&1 &
+            echo "$(date) [INFO] Script started with PID $!"
         else
             echo "$(date) [INFO] No SSH users detected, but script is already running with PID $RUNNING_PID."
         fi
