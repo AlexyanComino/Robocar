@@ -52,7 +52,8 @@ mkdir -p "$(dirname "$LOGFILE")"
             echo "$(date) [INFO] Activating virtual environment $VENV_NAME..."
             echo "$(date) [INFO] No SSH users detected and script is not running. Starting $SCRIPT_NAME..."
             source "$VENV_NAME/bin/activate"
-            nohup python "$SCRIPT_NAME" >> /dev/null 2>&1 &
+
+            nohup python "$SCRIPT_NAME" >> "$BASE_DIR/python.log" 2>&1 &
             echo $! > "$PIDFILE"
             echo "$(date) [INFO] Script started with PID $!"
         else
