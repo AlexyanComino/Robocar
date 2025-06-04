@@ -1,4 +1,3 @@
-import serial
 from pyvesc import VESC
 from gamepad_inputs import GamepadInput
 
@@ -74,6 +73,8 @@ def handle_events(updated, vesc):
         elif code == 'ABS_RZ':
             print(f"Right Trigger Axis: {state}")
             set_duty_cycle(vesc, state / 255.0)
+        else:
+            print(f"Unhandled event: {code} with state {state}")
 
 def main():
     gamepad_input = GamepadInput()
