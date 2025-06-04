@@ -50,6 +50,7 @@ def handle_events(updated, car):
             print(f"Unhandled event: {code} with state {state}")
 
 def main():
+    print("Starting gamepad input handler...")
     gamepad_input = GamepadInput()
     car = Car(port=PORT, power_limit=0.1)
 
