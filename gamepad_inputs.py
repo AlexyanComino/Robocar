@@ -5,7 +5,7 @@
 ## inputs
 ##
 
-from inputs import devices
+from inputs import get_gamepad
 
 class GamepadInput:
     """
@@ -18,9 +18,7 @@ class GamepadInput:
 
     def update(self):
         """Update the gamepad state by reading the current inputs."""
-        events = devices.gamepads[0]._do_iter()
-        if not events:
-            return []
+        events = get_gamepad()
         updated = []
         for event in events:
             if event.ev_type in ('Key', 'Absolute'):

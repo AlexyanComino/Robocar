@@ -1,17 +1,7 @@
-import signal
-import sys
-
 from gamepad_inputs import GamepadInput
 from car import Car
 
 PORT = "/dev/ttyACM0"
-
-should_exit = False
-
-def handle_sigterm(signum, frame):
-    global should_exit
-    print(f"Received signal {signum}, preparing to exit...")
-    should_exit = True
 
 def handle_events(updated, car):
     """
@@ -59,35 +49,19 @@ def handle_events(updated, car):
         else:
             print(f"Unhandled event: {code} with state {state}")
 
-import random
-
 def main():
     gamepad_input = GamepadInput()
     car = Car(port=PORT, power_limit=0.1)
 
-    signal.signal(signal.SIGTERM, handle_sigterm)
-    signal.signal(signal.SIGINT, handle_sigterm)
-
     try:
-        print("Initializing gamepad input...")
-        while not should_exit:
-            print("Waiting for gamepad input...")
+        while True:
             updated = gamepad_input.update()
-            print(f"Updated events: {updated}")
             handle_events(updated, car)
-            print("Processing next gamepad input...")
-        print("Exiting main loop, preparing to stop car.")
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
-        print("Exiting gracefully...")
         car.set_duty_cycle(0)
-        print("Stopping car motors.")
         car.set_servo(0.5)
-        print("Resetting servo to neutral position.")
 
 if __name__ == "__main__":
     main()
-    print("Gamepad input handling finished.")
-    sys.exit(0)
-    print("Exiting program.")
