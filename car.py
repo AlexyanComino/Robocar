@@ -82,5 +82,6 @@ class Car:
 
         :param actions: A dictionary containing 'throttle' and 'steering' values.
         """
+        print(f"Setting actions: {actions}")
         self.set_duty_cycle(actions['throttle'])
         self.set_servo(actions['steering'])
