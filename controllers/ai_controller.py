@@ -74,7 +74,7 @@ class AIController(IController):
         distances, _ = generate_rays(mask, num_rays=50, fov_degrees=120)
         return distances
 
-    def get_input_data(self, image: np.ndarray) -> dict:
+    def get_input_data(self, image: np.ndarray) -> list:
         """
         Prepare the input data for the AI model.
         Args:
@@ -83,9 +83,13 @@ class AIController(IController):
             Scaled input data as a dictionary.
         """
         rays_data = self.get_rays_data(image)
-        return {}
+        old_speed = self.car.get_old_speed()
+        speed = self.car.get_speed()
+        delta_speed = speed - old_speed
+        input_data = [speed, delta_speed, 0, 0, 0, 0, 0] + rays_data.tolist()
+        return input_data
 
-    def get_actions(self, input_data: np.ndarray) -> dict:
+    def get_actions(self, input_data: list) -> dict:
 
         data_scaled = self.racing_scaler.transform([input_data])
         data_tensor = torch.tensor(data_scaled, dtype=torch.float32)

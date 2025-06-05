@@ -29,6 +29,14 @@ class Car:
         """
         return self.vesc
 
+    def get_old_speed(self):
+        """
+        Get the last known speed of the car.
+
+        :return: The last known speed in m/s.
+        """
+        return self.old_speed
+
     def get_speed(self):
         """
         Get the current speed of the car.
