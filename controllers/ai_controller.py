@@ -44,7 +44,7 @@ class AIController(IController):
         self.racing_scaler = save_dict["scaler"]
 
         # Setup Mask Generator
-        self.mask_model, pad_divisor = load_model_from_run_dir("mask_generator/best_run")
+        self.mask_model, pad_divisor = load_model_from_run_dir("mask_generator/best_run", self.device)
         self.mask_transform = EvalTransform(pad_divisor=pad_divisor, to_tensor=True)
         self.mask_decoder = TensorDecoder()
 
