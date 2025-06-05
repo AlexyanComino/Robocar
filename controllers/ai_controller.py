@@ -95,7 +95,7 @@ class AIController(IController):
         data_tensor = torch.tensor(data_scaled, dtype=torch.float32)
 
         with torch.no_grad():
-            prediction = self.model(data_tensor).numpy().squeeze()
+            prediction = self.racing_model(data_tensor).numpy().squeeze()
 
         print(f"Prediction: {prediction}")
         return {
