@@ -30,7 +30,7 @@ class AIController(IController):
         def load_model(input_size, hidden_layers, output_size):
             model = MyModel(input_size, hidden_layers, output_size)
 
-            model_path = "best_model.joblib"
+            model_path = "model24220ce995.joblib"
 
             save_dict = joblib.load(model_path)
             model.load_state_dict(save_dict["model_weights"])
