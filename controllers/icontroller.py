@@ -13,17 +13,12 @@ class IController(ABC):
     """
 
     @abstractmethod
-    def update(self):
+    def run(self, car):
         """
-        Update the controller state.
+        Run the controller with the given car instance.
         This method should be implemented by all controllers.
-        """
-        pass
 
-    @abstractmethod
-    def get_actions(self) -> dict:
-        """
-        Get the actions to be performed by the car.
-        This method should be implemented by all controllers.
+        Args:
+            car: An instance of the Car class to control.
         """
         pass

@@ -7,7 +7,12 @@ YELLOW='\033[0;33m'
 RED='\033[0;31m'
 RESET='\033[0m'
 
-BASE_DIR="/home/robocar/Robocar"
+THIS_SCRIPT_PATH="$(realpath "${BASH_SOURCE[0]}")"
+THIS_SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
+BASE_DIR="$THIS_SCRIPT_DIR"
+
+echo "${THIS_SCRIPT_PATH}"
+
 VENV_NAME="$BASE_DIR/.venv"
 
 echo -e "${YELLOW}Setting up Python virtual environment...${RESET}"

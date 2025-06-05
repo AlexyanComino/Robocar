@@ -83,3 +83,47 @@ def generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=None):
             distances[f"ray_{i}"] = max_distance
 
     return distances, ray_endpoints
+
+
+def show_rays(mask, ray_endpoints, distances, image=None, alpha=0.6, show_text=False,
+              text_interval=5, colormap_name='viridis'):
+
+    height, width = mask.shape
+    origin_x = width // 2
+    origin_y = height - 1
+
+    plt.figure(figsize=(12, 6))
+
+    if image is not None:
+        if image.shape[:2] != mask.shape:
+            raise ValueError("Image and mask must have the same height and width")
+        plt.imshow(image, alpha=1.0)
+        plt.imshow(mask, cmap='gray', alpha=alpha)
+    else:
+        plt.imshow(mask, cmap='gray')
+
+    dist_values = np.array([distances[f"ray_{i}"] for i in range(len(ray_endpoints))])
+    dist_norm = (dist_values - dist_values.min()) / (np.ptp(dist_values) + 1e-8)
+    cmap = plt.get_cmap(colormap_name)
+
+    for i, (end_x, end_y) in enumerate(ray_endpoints):
+
+        color = cmap(dist_norm[i])
+
+        plt.plot([origin_x, end_x], [origin_y, end_y], color=color)
+
+        if show_text and i % text_interval == 0:
+            distance = distances[f"ray_{i}"]
+
+            mid_x = (origin_x + end_x) / 2
+            mid_y = (origin_y + end_y) / 2
+            offset = 20 * np.sin(i / 2.0)
+
+
+            plt.text(mid_x, mid_y + offset, f"{distance}", color='white',
+                    ha='center', va='center', fontsize=8)
+
+    plt.plot(origin_x, origin_y, "ro")
+    plt.title("Rays visualization with distances" if show_text else "Rays visualization")
+    plt.axis("equal")
+    plt.show()

@@ -37,21 +37,16 @@ def main():
     )
 
     args = parser.parse_args()
+    car = Car(port=PORT, power_limit=0.1)
     if args.controller == "gamepad":
-        controller = GamepadController()
+        controller = GamepadController(car)
     elif args.controller == "ai":
-        input_size = 57
-        hidden_layers = [32, 64, 128, 64, 32]
-        output_size = 2
-        controller = AIController(input_size, hidden_layers, output_size)
+        controller = AIController(car)
     else:
         raise ValueError("Invalid controller type. Choose 'gamepad' or 'ai'.")
-
     print(f"Using {args.controller} controller.")
 
-    car = Car(port=PORT, power_limit=0.1)
-
-    run(controller, car)
+    controller.run()
 
 if __name__ == "__main__":
     main()

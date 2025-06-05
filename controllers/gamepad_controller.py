@@ -7,6 +7,7 @@
 
 from controllers.icontroller import IController
 from inputs import get_gamepad
+from car import Car
 
 class GamepadController(IController):
     """
@@ -14,10 +15,11 @@ class GamepadController(IController):
     This controller reads the state of the gamepad and provides methods to access it.
     """
 
-    def __init__(self):
+    def __init__(self, car: Car):
         """
         Initialize the GamepadController.
         """
+        self.car = car
         self.gamepad_state = {}
         self.updated = []
         self.old_state = {'throttle': 0.0, 'steering': 0.5}
@@ -35,11 +37,11 @@ class GamepadController(IController):
         self.updated = updated
         return updated
 
-    def get_state(self, code):
+    def get_state(self, code: str) -> int:
         """Get the current state of a specific gamepad input."""
         return self.gamepad_state.get(code, 0)
 
-    def get_steering(self, steering) -> float:
+    def get_steering(self, steering: float) -> float:
         """
         Get the steering value from the gamepad state.
 
@@ -47,15 +49,15 @@ class GamepadController(IController):
         """
         return max(0.0, min(1.0, steering)) # Clamp to [0.0, 1.0]
 
-    def get_throttle(self, throttle) -> float:
+    def get_throttle(self, throttle: float) -> float:
             """ Get the throttle value from the gamepad state. """
             return max(-1.0, min(1.0, throttle))  # Clamp to [-1.0, 1.0]
 
-    def handle_events(self) -> dict:
+    def get_actions(self) -> dict:
         """
-        Handle the updated gamepad events and return the actions to be performed by the car.
+        Get the actions to be performed by the car based on the gamepad state.
+        This method should be implemented to return a dictionary of actions.
 
-        :param updated: List of tuples containing the event code and state.
         :return: A dictionary containing the actions derived from the gamepad state.
         """
         action = self.old_state.copy()
@@ -71,11 +73,13 @@ class GamepadController(IController):
         self.old_state = action.copy()
         return action
 
-    def get_actions(self) -> dict:
+    def run(self):
         """
-        Get the actions to be performed by the car based on the gamepad state.
-        This method should be implemented to return a dictionary of actions.
-
-        :return: A dictionary containing the actions derived from the gamepad state.
+        Run the gamepad controller with the given car instance.
+        This method continuously updates the gamepad state and applies the actions to the car.
         """
-        return self.handle_events()
+        while True:
+            updated = self.update()
+            if updated:
+                actions = self.get_actions()
+                self.car.set_actions(actions)
