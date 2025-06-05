@@ -17,7 +17,7 @@ class Car:
     def get_vesc(self):
         """
         Get the VESC instance.
-    
+
         :return: The VESC instance.
         """
         return self.vesc
@@ -75,3 +75,12 @@ class Car:
         if new_limit > MAX_LIMIT:
             new_limit = MAX_LIMIT
         self.set_power_limit(new_limit)
+
+    def set_actions(self, actions: dict):
+        """
+        Set the actions to be performed by the car.
+
+        :param actions: A dictionary containing 'throttle' and 'steering' values.
+        """
+        self.set_duty_cycle(actions['throttle'])
+        self.set_servo(actions['steering'])
