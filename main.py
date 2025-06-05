@@ -26,7 +26,6 @@ def run(controller, car):
             actions = controller.get_actions()
             car.set_actions(actions)
 
-
 def main():
     parser = ArgumentParser(description="Robocar Project")
     parser.add_argument(
