@@ -74,7 +74,6 @@ class AIController(IController):
 
         # Add mask generator logic and input data preparation here
         input_data = torch.zeros((1, 57))
-        input_data = self.scaler.transform(input_data.numpy())
         data_scaled = self.scaler.transform([input_data])
         data_tensor = torch.tensor(data_scaled, dtype=torch.float32)
 
