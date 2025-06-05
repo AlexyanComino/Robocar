@@ -28,6 +28,7 @@ def run(controller, car):
 
 
 def main():
+    print("Starting Robocar Project...")
     parser = ArgumentParser(description="Robocar Project")
     parser.add_argument(
         "--controller",
@@ -35,6 +36,8 @@ def main():
         default="gamepad",
         help="Select the controller type: 'gamepad' or 'ai'. Default is 'gamepad'."
     )
+
+    print("Available controllers: 'gamepad', 'ai'")
 
     args = parser.parse_args()
     if args.controller == "gamepad":
