@@ -35,11 +35,13 @@ class Car:
 
         :return: The current speed in m/s.
         """
-        if self.vesc.get_measurements() is None:
+        try:
+            rpm = self.vesc.get_rpm()
+        except AttributeError:
             return self.old_speed
-        rpm = self.vesc.get_rpm()
+
         if rpm is None:
-            return 0.0
+            return self.old_speed
         wheel_diameter = 0.01  # Example wheel diameter in meters
         wheel_circumference = 3.14159 * wheel_diameter
         speed = (rpm * wheel_circumference) / 60.0  # Convert RPM to m/s
