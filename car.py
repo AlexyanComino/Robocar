@@ -49,7 +49,6 @@ class Car:
             duty_cycle = -self.power_limit
         elif duty_cycle > self.power_limit:
             duty_cycle = self.power_limit
-        print(f"Setting duty cycle: {duty_cycle}")
         self.vesc.set_duty_cycle(duty_cycle)
 
     def set_servo(self, position):

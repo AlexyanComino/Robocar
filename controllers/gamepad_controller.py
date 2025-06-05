@@ -63,15 +63,10 @@ class GamepadController(IController):
         for code, state in self.updated:
             if code == 'ABS_X':
                 action['steering'] = self.get_steering((state + 32768) / 65535.0)
-                print("Steering:", action['steering'])
             elif code == 'ABS_Z':
                 action['throttle'] = self.get_throttle(-state / 255.0)
-                print("Backward Throttle:", action['throttle'])
             elif code == 'ABS_RZ':
                 action['throttle'] = self.get_throttle(state / 255.0)
-                print("Throttle:", action['throttle'])
-            else:
-                print(f"Unhandled event: {code} with state {state}")
 
         self.old_state = action.copy()
         return action
