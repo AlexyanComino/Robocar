@@ -44,7 +44,7 @@ class Car:
             return self.old_speed
         wheel_diameter = 0.01  # Example wheel diameter in meters
         wheel_circumference = 3.14159 * wheel_diameter
-        speed = (rpm * wheel_circumference) / 60.0  # Convert RPM to m/s
+        speed = (rpm * wheel_circumference) / 1000 * 60
         self.old_speed = speed
         return speed
 
