@@ -19,7 +19,6 @@ class GamepadController(IController):
         Initialize the GamepadController.
         """
         self.gamepad_state = {}
-        self.power_limit = 0.1
         self.updated = []
         self.old_state = {'throttle': 0.0, 'steering': 0.5}
 
@@ -50,9 +49,7 @@ class GamepadController(IController):
 
     def get_throttle(self, throttle) -> float:
             """ Get the throttle value from the gamepad state. """
-            throttle *= self.power_limit
-            throttle = max(-self.power_limit, min(self.power_limit, throttle))
-            return throttle
+            return max(-1.0, min(1.0, throttle))  # Clamp to [-1.0, 1.0]
 
     def handle_events(self) -> dict:
         """
