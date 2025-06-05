@@ -86,7 +86,7 @@ class AIController(IController):
         old_speed = self.car.get_old_speed()
         speed = self.car.get_speed()
         delta_speed = speed - old_speed
-        input_data = [speed, delta_speed, 0, 0, 0, 0, 0] + rays_data.tolist()
+        input_data = [speed, delta_speed, 0, 0, 0, 0, 0] + rays_data.values()
         return input_data
 
     def get_actions(self, input_data: list) -> dict:
