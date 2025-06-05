@@ -7,6 +7,7 @@
 
 import torch
 import pickle
+import joblib
 
 from controllers.icontroller import IController
 from AI.model import MyModel
@@ -29,11 +30,11 @@ class AIController(IController):
         def load_model(input_size, hidden_layers, output_size):
             model = MyModel(input_size, hidden_layers, output_size)
 
-            model_path = "best_model.pkl"
-            with open(model_path, "rb") as file:
-                save_dict = pickle.load(file)
-                model.load_state_dict(save_dict["model_weights"])
-                scaler = save_dict["scaler"]
+            model_path = "best_model.joblib"
+
+            save_dict = joblib.load(model_path)
+            model.load_state_dict(save_dict["model_weights"])
+            scaler = save_dict["scaler"]
 
             model.eval()
             return model, scaler
