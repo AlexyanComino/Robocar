@@ -49,7 +49,7 @@ def main():
 
     print(f"Using {args.controller} controller.")
 
-    car = Car(port=PORT, power_limit=0.01)
+    car = Car(port=PORT, power_limit=0.1)
 
     run(controller, car)
 
