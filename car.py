@@ -19,8 +19,6 @@ class Car:
         """
         self.set_duty_cycle(0.0)  # Ensure motors are stopped
         self.set_servo(0.5)  # Center the servo
-        self.vesc.close()
-
 
     def get_vesc(self):
         """
@@ -29,6 +27,20 @@ class Car:
         :return: The VESC instance.
         """
         return self.vesc
+
+    def get_speed(self):
+        """
+        Get the current speed of the car.
+
+        :return: The current speed in m/s.
+        """
+        rpm = self.vesc.get_rpm()
+        if rpm is None:
+            return 0.0
+        wheel_diameter = 0.01  # Example wheel diameter in meters
+        wheel_circumference = 3.14159 * wheel_diameter
+        speed = (rpm * wheel_circumference) / 60.0  # Convert RPM to m/s
+        return speed
 
     def get_power_limit(self):
         """

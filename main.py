@@ -21,6 +21,7 @@ def run(controller, car):
         controller (IController): The controller to use for handling inputs.
     """
     while True:
+        print(car.get_speed())
         updated = controller.update()
         if updated:
             actions = controller.get_actions()
