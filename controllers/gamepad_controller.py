@@ -21,6 +21,7 @@ class GamepadController(IController):
         self.gamepad_state = {}
         self.power_limit = 0.1
         self.updated = []
+        self.old_state = {'throttle': 0.0, 'steering': 0.5}
 
     def update(self):
         """Update the gamepad state by reading the current inputs."""
@@ -60,7 +61,7 @@ class GamepadController(IController):
         :param updated: List of tuples containing the event code and state.
         :return: A dictionary containing the actions derived from the gamepad state.
         """
-        action = {'throttle': 0.0, 'steering': 0.5}
+        action = self.old_state.copy()
 
         for code, state in self.updated:
             if code == 'ABS_X':
@@ -74,6 +75,8 @@ class GamepadController(IController):
                 print("Throttle:", action['throttle'])
             else:
                 print(f"Unhandled event: {code} with state {state}")
+
+        self.old_state = action.copy()
         return action
 
     def get_actions(self) -> dict:
