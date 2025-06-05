@@ -70,11 +70,12 @@ class Car:
 
         :param duty_cycle: The desired duty cycle (-1.0 to 1.0).
         """
-        duty_cycle *= self.power_limit
-        if duty_cycle < -self.power_limit:
-            duty_cycle = -self.power_limit
-        elif duty_cycle > self.power_limit:
-            duty_cycle = self.power_limit
+        limit = self.power_limit or 0.01
+        duty_cycle *= limit
+        if duty_cycle < -limit:
+            duty_cycle = -limit
+        elif duty_cycle > limit:
+            duty_cycle = limit
         self.vesc.set_duty_cycle(duty_cycle)
 
     def set_servo(self, position):
