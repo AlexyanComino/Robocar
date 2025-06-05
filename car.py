@@ -34,12 +34,12 @@ class Car:
 
         :return: The current speed in m/s.
         """
-        rpm = self.vesc.get_rpm()
-        if rpm is None:
+        duty_cycle = self.vesc.get_duty_cycle()
+        if duty_cycle == 0.0:
             return 0.0
-        wheel_diameter = 0.01  # Example wheel diameter in meters
-        wheel_circumference = 3.14159 * wheel_diameter
-        speed = (rpm * wheel_circumference) / 60.0  # Convert RPM to m/s
+        voltage = self.vesc.get_voltage()
+        current = self.vesc.get_current()
+        speed = (duty_cycle * voltage) / (current if current != 0 else 1)
         return speed
 
     def get_power_limit(self):
