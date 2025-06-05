@@ -62,7 +62,7 @@ class AIController(IController):
         """
         # In a real implementation, this might involve processing input data
         # and updating the model state. Here, we just return an empty list.
-        return []
+        return True
 
     def get_actions(self):
         """
@@ -80,6 +80,7 @@ class AIController(IController):
 
 
         prediction = self.predict(data_tensor)
+        print(f"Prediction: {prediction}")
         return {
             "throttle": prediction[0],
             "steering": prediction[1]
