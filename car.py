@@ -13,6 +13,14 @@ class Car:
         self.vesc = VESC(serial_port=port)
         self.power_limit = power_limit
 
+    def __del__(self):
+        """
+        Clean up the Car instance by closing the VESC connection.
+        """
+        self.set_duty_cycle(0.0)  # Ensure motors are stopped
+        self.set_servo(0.5)  # Center the servo
+        self.vesc.close()
+
 
     def get_vesc(self):
         """
