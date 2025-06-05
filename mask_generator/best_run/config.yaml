@@ -1,0 +1,40 @@
+model:
+    in_channels: 3
+    out_channels: 1
+    model_args:
+        dropout: 0.0
+        filters:
+        - 32
+        - 64
+        - 128
+        - 256
+        n_convs: 2
+other:
+    name: 20250530_052145_c65426084f
+    run_dir: /root/MaskGenerator/RUNS/20250530_052145_c65426084f
+    run_hash: c65426084f
+    verbose: false
+training:
+    augmentations:
+    - geometry
+    - dropout
+    - color_invariance
+    - color_variation
+    - blur
+    - noise
+    - weather
+    batch_size: 32
+    delta: 0.0
+    eval_dataset_path: /root/MaskGenerator/Datasets/test/MoLane
+    gamma: 0.1
+    lr: 0.001
+    num_epochs: 100
+    patience: 30
+    seed: 42
+    step_size: 10
+    train_dataset_path: /root/MaskGenerator/Datasets/train/simu_v0
+    train_image_size:
+    - 256
+    - 256
+    use_amp: true
+    weighted_loss: false
