@@ -86,7 +86,25 @@ class AIController(IController):
         old_speed = self.car.get_old_speed()
         speed = self.car.get_speed()
         delta_speed = speed - old_speed
-        input_data = [speed, delta_speed, 0, 0, 0, 0, 0] + list(rays_data.values())
+
+        ray_values = np.array([rays_data[f"ray_{i}"] for i in range(50)])
+
+        # Find the closest ray to the car
+        closest_ray_index = np.argmin(ray_values)
+        angle_step = 120 / (50 - 1)
+        angle_closest_ray = -(120 / 2) + closest_ray_index * angle_step
+
+        left_indices = range(50 // 3)
+        center_indices = range(50 // 3, 2 * 50 // 3)
+        right_indices = range(2 * 50 // 3, 50)
+
+        avg_ray_left = np.mean(ray_values[list(left_indices)])
+        avg_ray_center = np.mean(ray_values[list(center_indices)])
+        avg_ray_right = np.mean(ray_values[list(right_indices)])
+
+        ray_balance = avg_ray_right - avg_ray_left
+
+        input_data = [speed, delta_speed, angle_closest_ray, avg_ray_left, avg_ray_center, avg_ray_right, ray_balance] + list(rays_data.values())
         return input_data
 
     def get_actions(self, input_data: list) -> dict:
