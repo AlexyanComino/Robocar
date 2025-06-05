@@ -20,6 +20,7 @@ class GamepadController(IController):
         """
         self.gamepad_state = {}
         self.power_limit = 0.1
+        self.updated = []
 
     def update(self):
         """Update the gamepad state by reading the current inputs."""
@@ -31,6 +32,7 @@ class GamepadController(IController):
                 self.gamepad_state[event.code] = event.state
                 if prev_state != event.state:
                     updated.append((event.code, event.state))
+        self.updated = updated
         return updated
 
     def get_state(self, code):
@@ -51,7 +53,7 @@ class GamepadController(IController):
             throttle = max(-self.power_limit, min(self.power_limit, throttle))
             return throttle
 
-    def handle_events(self, updated) -> dict:
+    def handle_events(self) -> dict:
         """
         Handle the updated gamepad events and return the actions to be performed by the car.
 
@@ -60,7 +62,7 @@ class GamepadController(IController):
         """
         action = {'throttle': 0.0, 'steering': 0.5}
 
-        for code, state in updated:
+        for code, state in self.updated:
             if code == 'ABS_X':
                 action['steering'] = self.get_steering((state + 32768) / 65535.0)
                 print("Steering:", action['steering'])
@@ -81,4 +83,4 @@ class GamepadController(IController):
 
         :return: A dictionary containing the actions derived from the gamepad state.
         """
-        return self.handle_events(self.update())
+        return self.handle_events()
