@@ -26,27 +26,46 @@ class AIController(IController):
 
         import torch
         import depthai as dai
+        import time
 
+        time_before_import = time.time()
         self.torch = torch # Store torch reference
         self.dai = dai # Store depthai reference
+        print(f"Time taken to import modules: {time.time() - time_before_import:.2f} seconds")
 
         self.device = "cuda" if self.torch.cuda.is_available() else "cpu"
         print(f"Using device: {self.device}")
         self.car = car
-        self.pipeline = self.init_camera()
 
+        time_before_camera = time.time()
+        self.pipeline = self.init_camera()
+        print(f"Time taken to initialize camera: {time.time() - time_before_camera:.2f} seconds")
         # Setup Racing Simulator
         model_path = "model24220ce995.joblib"
+
+        time_before_model = time.time()
         self.racing_model = MyModel(input_size=57, hidden_layers=[32, 64, 128, 64, 32], output_size=2).to(self.device)
+        print(f"Time taken to initialize model: {time.time() - time_before_model:.2f} seconds")
+
+        time_before_load = time.time()
         save_dict = joblib.load(model_path)
+        print(f"Time taken to load model weights: {time.time() - time_before_load:.2f} seconds")
+
+        time_before_load_weights = time.time()
         self.racing_model.load_state_dict(save_dict["model_weights"])
         self.racing_model.eval()
         self.racing_scaler = save_dict["scaler"]
+        print(f"Time taken to load model: {time.time() - time_before_load_weights:.2f} seconds")
 
         # Setup Mask Generator
+        time_before_mask = time.time()
         self.mask_model, pad_divisor = load_model_from_run_dir("mask_generator/best_run", self.device)
+        print(f"Time taken to load mask generator model: {time.time() - time_before_mask:.2f} seconds")
+
+        time_before_mask_transform = time.time()
         self.mask_transform = EvalTransform(pad_divisor=pad_divisor, to_tensor=True)
         self.mask_decoder = TensorDecoder()
+        print(f"Time taken to initialize mask generator transform: {time.time() - time_before_mask_transform:.2f} seconds")
 
     def init_camera(self):
         pipeline = self.dai.Pipeline()
