@@ -28,7 +28,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    car = Car(port=PORT, power_limit=0.05)
+    car = Car(port=PORT, power_limit=0.025)
     if args.controller == "gamepad":
         controller = GamepadController(car)
     elif args.controller == "ai":
