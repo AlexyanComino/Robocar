@@ -5,32 +5,32 @@
 ## ai_controller
 ##
 
+import numpy as np
 
 from controllers.icontroller import IController
-from racing.model import MyModel
 from car import Car
-from mask_generator.model_loader import load_model_from_run_dir
-from mask_generator.model_inference import infer_mask
-from mask_generator.transforms import EvalTransform, TensorDecoder
-from mask_generator.ray_generator import generate_rays
 
 class AIController(IController):
     """
     Controller for the AI model in the Robocar project.
     This controller handles the interaction with the AI model.
     """
-
     def __init__(self, car: Car):
         """
         Initialize the AIController with a model.
         """
+        from mask_generator.model_loader import load_model_from_run_dir
+        from mask_generator.transforms import EvalTransform, TensorDecoder
+        from racing.model import MyModel
         import joblib
+
         import torch
         import depthai as dai
-        from collections import deque
-        import numpy as np
 
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.torch = torch # Store torch reference
+        self.dai = dai # Store depthai reference
+
+        self.device = "cuda" if self.torch.cuda.is_available() else "cpu"
         print(f"Using device: {self.device}")
         self.car = car
         self.pipeline = self.init_camera()
@@ -49,11 +49,11 @@ class AIController(IController):
         self.mask_decoder = TensorDecoder()
 
     def init_camera(self):
-        pipeline = dai.Pipeline()
+        pipeline = self.dai.Pipeline()
         cam_color = pipeline.createColorCamera()
         cam_color.setPreviewSize(455, 256)
         cam_color.setInterleaved(False)
-        cam_color.setColorOrder(dai.ColorCameraProperties.ColorOrder.BGR)
+        cam_color.setColorOrder(self.dai.ColorCameraProperties.ColorOrder.BGR)
 
         xout = pipeline.createXLinkOut()
         xout.setStreamName("video")
@@ -69,6 +69,9 @@ class AIController(IController):
         Returns:
             Dictionary containing distances and rays.
         """
+        from mask_generator.model_inference import infer_mask
+        from mask_generator.ray_generator import generate_rays
+
         mask = infer_mask(self.mask_model, transform=self.mask_transform, decoder=self.mask_decoder, image=image, device=self.device)
         distances, _ = generate_rays(mask, num_rays=50, fov_degrees=120)
         return distances
@@ -109,9 +112,9 @@ class AIController(IController):
     def get_actions(self, input_data: list) -> dict:
 
         data_scaled = self.racing_scaler.transform([input_data])
-        data_tensor = torch.tensor(data_scaled, dtype=torch.float32, device=self.device)
+        data_tensor = self.torch.tensor(data_scaled, dtype=self.torch.float32, device=self.device)
 
-        with torch.no_grad():
+        with self.torch.no_grad():
             prediction = self.racing_model(data_tensor).cpu().numpy().squeeze()
 
         print(f"Prediction: {prediction}")
@@ -130,8 +133,9 @@ class AIController(IController):
 
         from cv2 import cvtColor, COLOR_BGR2RGB
         import time
+        from collections import deque
 
-        with dai.Device(self.pipeline) as cam_device:
+        with self.dai.Device(self.pipeline) as cam_device:
             video_queue = cam_device.getOutputQueue(name="video", maxSize=4, blocking=False)
             fps_history = deque(maxlen=30)
 
