@@ -32,6 +32,7 @@ class AIController(IController):
         Initialize the AIController with a model.
         """
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        print(f"Using device: {self.device}")
         self.car = car
         self.pipeline = self.init_camera()
 
@@ -110,10 +111,10 @@ class AIController(IController):
     def get_actions(self, input_data: list) -> dict:
 
         data_scaled = self.racing_scaler.transform([input_data])
-        data_tensor = torch.tensor(data_scaled, dtype=torch.float32)
+        data_tensor = torch.tensor(data_scaled, dtype=torch.float32, device=self.device)
 
         with torch.no_grad():
-            prediction = self.racing_model(data_tensor).numpy().squeeze()
+            prediction = self.racing_model(data_tensor).cpu().numpy().squeeze()
 
         print(f"Prediction: {prediction}")
         return {
@@ -146,6 +147,9 @@ class AIController(IController):
                 frame = in_video.getCvFrame()
                 image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
+                print(f"Image shape: {image_rgb.shape}")
                 input_data = self.get_input_data(image_rgb)
+                print(f"Input data: {input_data}")
                 actions = self.get_actions(input_data)
+                print(f"Actions: {actions}")
                 self.car.set_actions(actions)
