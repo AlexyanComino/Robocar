@@ -32,6 +32,7 @@ class AIController(IController):
         Initialize the AIController with a model.
         """
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        print(f"Using device: {self.device}")
         self.car = car
         self.pipeline = self.init_camera()
 
@@ -113,7 +114,7 @@ class AIController(IController):
         data_tensor = torch.tensor(data_scaled, dtype=torch.float32, device=self.device)
 
         with torch.no_grad():
-            prediction = self.racing_model(data_tensor).numpy().squeeze()
+            prediction = self.racing_model(data_tensor).cpu().numpy().squeeze()
 
         print(f"Prediction: {prediction}")
         return {
