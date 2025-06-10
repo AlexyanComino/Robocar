@@ -92,7 +92,7 @@ class AIController(IController):
         from mask_generator.ray_generator import generate_rays
 
         mask = infer_mask(self.mask_model, transform=self.mask_transform, decoder=self.mask_decoder, image=image, device=self.device)
-        distances, _ = generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=300)
+        distances, _ = generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=400)
         return distances
 
     def get_input_data(self, image: np.ndarray) -> list:
@@ -108,7 +108,7 @@ class AIController(IController):
         speed = self.car.get_speed() / 8 * 40 # Scale speed to a range of 0-40
         delta_speed = speed - old_speed
 
-        ray_values = np.array([rays_data[f"ray_{i}"] for i in range(50)])
+        ray_values = np.array([rays_data[f"ray_{i}"] / 400 * 250 for i in range(50)])
 
         # Find the closest ray to the car
         closest_ray_index = np.argmin(ray_values)
