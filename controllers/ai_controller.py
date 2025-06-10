@@ -52,7 +52,7 @@ class AIController(IController):
         print(f"Time taken to load model weights: {time.time() - time_before_load:.2f} seconds")
 
         time_before_load_weights = time.time()
-        self.racing_model.load_state_dict(save_dict["model_weights"])
+        self.racing_model.load_state_dict(save_dict["model_weights"], map_location=self.device)
         self.racing_model.eval()
         self.racing_scaler = save_dict["scaler"]
         print(f"Time taken to load model: {time.time() - time_before_load_weights:.2f} seconds")
@@ -130,7 +130,9 @@ class AIController(IController):
 
     def get_actions(self, input_data: list) -> dict:
 
+        print(f"Input data: {input_data}")
         data_scaled = self.racing_scaler.transform([input_data])
+        print(f"Scaled data: {data_scaled}")
         data_tensor = self.torch.tensor(data_scaled, dtype=self.torch.float32, device=self.device)
 
         with self.torch.no_grad():
