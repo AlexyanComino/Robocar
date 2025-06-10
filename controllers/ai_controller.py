@@ -110,7 +110,7 @@ class AIController(IController):
     def get_actions(self, input_data: list) -> dict:
 
         data_scaled = self.racing_scaler.transform([input_data])
-        data_tensor = torch.tensor(data_scaled, dtype=torch.float32)
+        data_tensor = torch.tensor(data_scaled, dtype=torch.float32, device=self.device)
 
         with torch.no_grad():
             prediction = self.racing_model(data_tensor).numpy().squeeze()
