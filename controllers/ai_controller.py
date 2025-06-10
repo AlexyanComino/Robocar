@@ -5,14 +5,7 @@
 ## ai_controller
 ##
 
-import torch
-import pickle
-import joblib
-import depthai as dai
-from collections import deque
-import cv2
-import time
-import numpy as np
+
 from controllers.icontroller import IController
 from racing.model import MyModel
 from car import Car
@@ -31,6 +24,12 @@ class AIController(IController):
         """
         Initialize the AIController with a model.
         """
+        import joblib
+        import torch
+        import depthai as dai
+        from collections import deque
+        import numpy as np
+
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         print(f"Using device: {self.device}")
         self.car = car
@@ -61,7 +60,6 @@ class AIController(IController):
         cam_color.preview.link(xout.input)
 
         return pipeline
-
 
     def get_rays_data(self, image: np.ndarray) -> dict:
         """
@@ -129,6 +127,10 @@ class AIController(IController):
         Args:
             car: An instance of the Car class to control.
         """
+
+        from cv2 import cvtColor, COLOR_BGR2RGB
+        import time
+
         with dai.Device(self.pipeline) as cam_device:
             video_queue = cam_device.getOutputQueue(name="video", maxSize=4, blocking=False)
             fps_history = deque(maxlen=30)
@@ -145,11 +147,8 @@ class AIController(IController):
                 print(f"\rAverage FPS: {avg_fps:.2f}  ", end='')
                 in_video = video_queue.get()
                 frame = in_video.getCvFrame()
-                image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                image_rgb = cvtColor(frame, COLOR_BGR2RGB)
 
-                print(f"Image shape: {image_rgb.shape}")
                 input_data = self.get_input_data(image_rgb)
-                print(f"Input data: {input_data}")
                 actions = self.get_actions(input_data)
-                print(f"Actions: {actions}")
                 self.car.set_actions(actions)
