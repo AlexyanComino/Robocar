@@ -52,7 +52,7 @@ class AIController(IController):
         print(f"Time taken to load model weights: {time.time() - time_before_load:.2f} seconds")
 
         time_before_load_weights = time.time()
-        self.racing_model.load_state_dict(save_dict["model_weights"], map_location=self.device)
+        self.racing_model.load_state_dict(save_dict["model_weights"])
         self.racing_model.eval()
         self.racing_scaler = save_dict["scaler"]
         print(f"Time taken to load model: {time.time() - time_before_load_weights:.2f} seconds")

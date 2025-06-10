@@ -13,20 +13,7 @@ from car import Car
 
 PORT = "/dev/ttyACM0"
 
-def run(controller, car):
-    """
-    Run the main loop of the Robocar project.
-
-    Args:
-        controller (IController): The controller to use for handling inputs.
-    """
-    while True:
-        updated = controller.update()
-        if updated:
-            actions = controller.get_actions()
-            car.set_actions(actions)
-
-def main():
+def parse_args():
     parser = ArgumentParser(description="Robocar Project")
     parser.add_argument(
         "--controller",
@@ -35,8 +22,13 @@ def main():
         help="Select the controller type: 'gamepad' or 'ai'. Default is 'gamepad'."
     )
 
-    args = parser.parse_args()
-    car = Car(port=PORT, power_limit=0.1)
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+
+    car = Car(port=PORT, power_limit=0.05)
     if args.controller == "gamepad":
         controller = GamepadController(car)
     elif args.controller == "ai":
