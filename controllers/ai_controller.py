@@ -146,6 +146,9 @@ class AIController(IController):
                 frame = in_video.getCvFrame()
                 image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
+                print(f"Image shape: {image_rgb.shape}")
                 input_data = self.get_input_data(image_rgb)
+                print(f"Input data: {input_data}")
                 actions = self.get_actions(input_data)
+                print(f"Actions: {actions}")
                 self.car.set_actions(actions)
