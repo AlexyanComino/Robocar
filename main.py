@@ -15,7 +15,6 @@ PORT = "/dev/ttyACM0"
 
 def parse_args():
     parser = ArgumentParser(description="Robocar Project")
-    subparsers = parser.add_subparsers(dest="controller", required=False)
 
     # Controller (default is gamepad)
     parser.add_argument(
