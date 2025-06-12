@@ -9,6 +9,7 @@ import numpy as np
 
 from controllers.icontroller import IController
 from car import Car
+from camera_stream_server import CameraStreamServer
 
 class AIController(IController):
     """
@@ -79,6 +80,8 @@ class AIController(IController):
         self.output_columns = ["input_speed", "input_steering"]
 
         self.previous_data = {}
+
+        self.camera_stream = None
 
     def init_camera(self):
         pipeline = self.dai.Pipeline()
@@ -191,18 +194,7 @@ class AIController(IController):
 
         import time
         from collections import deque
-        import cv2
-        import socket
-        import struct
-        import pickle
-
-        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_socket.bind(('0.0.0.0', 8000))  # Bind to all interfaces on port 8000
-        server_socket.listen(1)
-
-        print("Waiting for connection...")
-        conn, addr = server_socket.accept()
-        print("Connected by", addr)
+        from cv2 import cvtColor, COLOR_BGR2RGB
 
         with self.dai.Device(self.pipeline) as cam_device:
             video_queue = cam_device.getOutputQueue(name="video", maxSize=4, blocking=False)
@@ -210,28 +202,24 @@ class AIController(IController):
 
             prev_time = time.time()
 
-            while True:
-                now = time.time()
-                delta = now - prev_time
-                prev_time = now
-                if delta > 0:
-                    fps_history.append(1.0 / delta)
-                avg_fps = sum(fps_history) / len(fps_history)
-                print(f"\rAverage FPS: {avg_fps:.2f}  ", end='')
-                in_video = video_queue.get()
-                frame = in_video.getCvFrame()
-                image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            with CameraStreamServer() as stream:
+                self.camera_stream = stream
 
-                # STREAMING
-                data = pickle.dumps(image_rgb)
-                size = struct.pack(">L", len(data))
+                while True:
+                    now = time.time()
+                    delta = now - prev_time
+                    prev_time = now
+                    if delta > 0:
+                        fps_history.append(1.0 / delta)
+                    avg_fps = sum(fps_history) / len(fps_history)
+                    print(f"\rAverage FPS: {avg_fps:.2f}  ", end='')
+                    in_video = video_queue.get()
+                    frame = in_video.getCvFrame()
+                    image_rgb = cvtColor(frame, COLOR_BGR2RGB)
 
-                # Send size and data
-                conn.sendall(size + data)
-                # END of STREAMING
+                    # STREAMING
+                    self.camera_stream.stream_image(image_rgb)
 
-                data = self.get_data(image_rgb)
-                actions = self.get_actions(data)
-                self.car.set_actions(actions)
-
-        conn.close()
+                    data = self.get_data(image_rgb)
+                    actions = self.get_actions(data)
+                    self.car.set_actions(actions)
