@@ -67,6 +67,16 @@ class AIController(IController):
         self.mask_decoder = TensorDecoder()
         print(f"Time taken to initialize mask generator transform: {time.time() - time_before_mask_transform:.2f} seconds")
 
+        # Racing Simulator data
+        self.fov = 120
+        self.max_rays = 50
+        self.input_columns = ['speed', 'delta_speed', 'angle_closest_ray',
+                              'avg_ray_left', 'avg_ray_center', 'avg_ray_right',
+                              'ray_balance'] + [f"ray_{i}" for i in range(1, 51)]
+        self.output_columns = ["input_speed", "input_steering"]
+
+        self.previous_data = {}
+
     def init_camera(self):
         pipeline = self.dai.Pipeline()
         cam_color = pipeline.createColorCamera()
@@ -95,7 +105,7 @@ class AIController(IController):
         distances, _ = generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=400)
         return distances
 
-    def get_input_data(self, image: np.ndarray) -> list:
+    def get_data(self, image: np.ndarray) -> list:
         """
         Prepare the input data for the AI model.
         Args:
@@ -104,32 +114,53 @@ class AIController(IController):
             Scaled input data as a dictionary.
         """
         rays_data = self.get_rays_data(image)
-        old_speed = self.car.get_old_speed()
         speed = self.car.get_speed() / 8 * 40 # Scale speed to a range of 0-40
-        delta_speed = speed - old_speed
+
+        init_colomns = ["speed", "steering"] + [f"pos_{coord}" for coord in ['x', 'y', 'z']] \
+                + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
+
+        data = {column: 0.0 for column in init_colomns}
+
+        data["speed"] = speed
+
+        data["delta_speed"] = data["speed"] - self.previous_data.get("speed", 0.0)
+        data["delta_steering"] = data["steering"] - self.previous_data.get("steering", 0.0)
 
         ray_values = np.array([rays_data[f"ray_{i}"] / 400 * 250 for i in range(50)])
 
         # Find the closest ray to the car
         closest_ray_index = np.argmin(ray_values)
-        angle_step = 120 / (50 - 1)
-        angle_closest_ray = -(120 / 2) + closest_ray_index * angle_step
+        angle_step = self.fov / (self.num_rays - 1)
+        data["angle_closest_ray"] = -(self.fov / 2) + closest_ray_index * angle_step
 
-        left_indices = range(50 // 3)
-        center_indices = range(50 // 3, 2 * 50 // 3)
-        right_indices = range(2 * 50 // 3, 50)
+        # Calculate the average, standard deviation, min, and max of the ray values
+        data["avg_ray"] = np.mean(ray_values)
+        data["std_ray"] = np.std(ray_values)
+        data["min_ray"] = np.min(ray_values)
+        data["max_ray"] = np.max(ray_values)
 
-        avg_ray_left = np.mean(ray_values[list(left_indices)])
-        avg_ray_center = np.mean(ray_values[list(center_indices)])
-        avg_ray_right = np.mean(ray_values[list(right_indices)])
+        left_indices = range(self.num_rays // 3)
+        center_indices = range(self.num_rays // 3, 2 * self.num_rays // 3)
+        right_indices = range(2 * self.num_rays // 3, self.num_rays)
 
-        ray_balance = avg_ray_right - avg_ray_left
+        data["avg_ray_left"] = np.mean(ray_values[list(left_indices)])
+        data["avg_ray_center"] = np.mean(ray_values[list(center_indices)])
+        data["avg_ray_right"] = np.mean(ray_values[list(right_indices)])
 
-        input_data = [speed, delta_speed, angle_closest_ray, avg_ray_left, avg_ray_center, avg_ray_right, ray_balance] + list(rays_data.values())
-        return input_data
+        data["ray_balance"] = data["avg_ray_right"] - data["avg_ray_left"]
 
-    def get_actions(self, input_data: list) -> dict:
+        # Acceleration calculation
+        prev_delta_speed = self.previous_data.get("delta_speed", 0.0)
+        data["acceleration"] = data["delta_speed"] - prev_delta_speed
 
+        # Update previous data
+        self.previous_data = data.copy()
+
+        return data
+
+    def get_actions(self, data: dict) -> dict:
+        """  """
+        input_data = [data[column] for column in self.input_columns]
         print(f"Input data: {input_data}")
         data_scaled = self.racing_scaler.transform([input_data])
         print(f"Scaled data: {data_scaled}")
@@ -174,6 +205,6 @@ class AIController(IController):
                 frame = in_video.getCvFrame()
                 image_rgb = cvtColor(frame, COLOR_BGR2RGB)
 
-                input_data = self.get_input_data(image_rgb)
-                actions = self.get_actions(input_data)
+                data = self.get_data(image_rgb)
+                actions = self.get_actions(data)
                 self.car.set_actions(actions)
