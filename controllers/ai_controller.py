@@ -189,9 +189,20 @@ class AIController(IController):
             car: An instance of the Car class to control.
         """
 
-        from cv2 import cvtColor, COLOR_BGR2RGB
         import time
         from collections import deque
+        import cv2
+        import socket
+        import struct
+        import pickle
+
+        server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server_socket.bind(('0.0.0.0', 8000))  # Bind to all interfaces on port 8000
+        server_socket.listen(1)
+
+        print("Waiting for connection...")
+        conn, addr = server_socket.accept()
+        print("Connected by", addr)
 
         with self.dai.Device(self.pipeline) as cam_device:
             video_queue = cam_device.getOutputQueue(name="video", maxSize=4, blocking=False)
@@ -209,8 +220,18 @@ class AIController(IController):
                 print(f"\rAverage FPS: {avg_fps:.2f}  ", end='')
                 in_video = video_queue.get()
                 frame = in_video.getCvFrame()
-                image_rgb = cvtColor(frame, COLOR_BGR2RGB)
+                image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+                # STREAMING
+                data = pickle.dumps(image_rgb)
+                size = struct.pack(">L", len(data))
+
+                # Send size and data
+                conn.sendall(size + data)
+                # END of STREAMING
 
                 data = self.get_data(image_rgb)
                 actions = self.get_actions(data)
                 self.car.set_actions(actions)
+
+        conn.close()
