@@ -8,6 +8,7 @@
 from controllers.icontroller import IController
 from inputs import get_gamepad
 from car import Car
+from camera_stream_server import CameraStreamServer
 
 class GamepadController(IController):
     """
@@ -78,8 +79,14 @@ class GamepadController(IController):
         Run the gamepad controller with the given car instance.
         This method continuously updates the gamepad state and applies the actions to the car.
         """
-        while True:
-            updated = self.update()
-            if updated:
-                actions = self.get_actions()
-                self.car.set_actions(actions)
+        import cv2
+        import numpy as np
+        with CameraStreamServer() as camera_server:
+            while True:
+                updated = self.update()
+                if updated:
+                    actions = self.get_actions()
+                    self.car.set_actions(actions)
+                    fake_image = np.zeros((480, 640, 3), dtype=np.uint8)
+                    cv2_image = cv2.cvtColor(fake_image, cv2.COLOR_BGR2RGB)
+                    camera_server.stream_image(cv2_image)
