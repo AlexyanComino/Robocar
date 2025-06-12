@@ -22,13 +22,15 @@ class AIController(IController):
         from mask_generator.model_loader import load_model_from_run_dir
         from mask_generator.transforms import EvalTransform, TensorDecoder
         from racing.model import MyModel
-        import joblib
 
+
+        time_before_import = time.time()
+        import joblib
         import torch
+        print(f"Time taken to import joblib and torch: {time.time() - time_before_import:.2f} seconds")
         import depthai as dai
         import time
 
-        time_before_import = time.time()
         self.torch = torch # Store torch reference
         self.dai = dai # Store depthai reference
         print(f"Time taken to import modules: {time.time() - time_before_import:.2f} seconds")
@@ -70,6 +72,7 @@ class AIController(IController):
         # Racing Simulator data
         self.fov = 120
         self.max_rays = 50
+        self.num_rays = self.max_rays
         self.input_columns = ['speed', 'delta_speed', 'angle_closest_ray',
                               'avg_ray_left', 'avg_ray_center', 'avg_ray_right',
                               'ray_balance'] + [f"ray_{i}" for i in range(1, 51)]

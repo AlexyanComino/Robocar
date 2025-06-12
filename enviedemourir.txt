@@ -36,7 +36,8 @@ Noter chacun dans sa partie les tâches qu'on pense identifier (jsp ce que j'éc
 
 Méthodologie:
 
-Rituel (satanique)
+- Méthode Agile
+- Sprints par groupe
 
 Réunions:
 - Lundi, Jeudi
@@ -46,10 +47,10 @@ Régles:
 
 - Dire les choses directs (pas message ou en vrai)
 - Organisation par GitHub
--
+- Une fois par semaine, on fusionne toutes les parties
 
 Objectif pour la semaine prochaine:
 
 - IA, un bon début
 - Graphique, tous les prérequis
-- Réseau, print hello world
+- Réseau, début de connexion
