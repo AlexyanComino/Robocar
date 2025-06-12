@@ -16,7 +16,7 @@ class AIController(IController):
     Controller for the AI model in the Robocar project.
     This controller handles the interaction with the AI model.
     """
-    def __init__(self, car: Car):
+    def __init__(self, car: Car, is_camera_stream: bool = False):
         """
         Initialize the AIController with a model.
         """
@@ -39,6 +39,7 @@ class AIController(IController):
         self.device = "cuda" if self.torch.cuda.is_available() else "cpu"
         print(f"Using device: {self.device}")
         self.car = car
+        self.is_camera_stream = is_camera_stream
 
         time_before_camera = time.time()
         self.pipeline = self.init_camera()
@@ -120,7 +121,7 @@ class AIController(IController):
             Scaled input data as a dictionary.
         """
         rays_data = self.get_rays_data(image)
-        speed = self.car.get_speed() / 8 * 40 # Scale speed to a range of 0-40
+        speed = self.car.get_speed() / 8 * 40 # Scale speed to a range of 0-40 # TEMPORARY, TRYING TO MATCH RACING SIMULATOR SPEED
 
         init_colomns = ["speed", "steering"] + [f"pos_{coord}" for coord in ['x', 'y', 'z']] \
                 + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
@@ -135,7 +136,7 @@ class AIController(IController):
         data["delta_speed"] = data["speed"] - self.previous_data.get("speed", 0.0)
         data["delta_steering"] = data["steering"] - self.previous_data.get("steering", 0.0)
 
-        ray_values = np.array([rays_data[f"ray_{i}"] / 400 * 250 for i in range(50)])
+        ray_values = np.array([rays_data[f"ray_{i}"] / 400 * 250 for i in range(50)]) # TEMPORARY, TRYING TO MATCH RACING SIMULATOR RAY VALUES
 
         # Find the closest ray to the car
         closest_ray_index = np.argmin(ray_values)
@@ -202,7 +203,7 @@ class AIController(IController):
 
             prev_time = time.time()
 
-            with CameraStreamServer() as stream:
+            with CameraStreamServer(on=self.is_camera_stream) as stream:
                 self.camera_stream = stream
 
                 while True:
@@ -218,7 +219,8 @@ class AIController(IController):
                     image_rgb = cvtColor(frame, COLOR_BGR2RGB)
 
                     # STREAMING
-                    self.camera_stream.stream_image(image_rgb)
+                    if self.camera_stream is not None:
+                        self.camera_stream.stream_image(image_rgb)
 
                     data = self.get_data(image_rgb)
                     actions = self.get_actions(data)

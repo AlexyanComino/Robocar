@@ -15,11 +15,21 @@ PORT = "/dev/ttyACM0"
 
 def parse_args():
     parser = ArgumentParser(description="Robocar Project")
+    subparsers = parser.add_subparsers(dest="controller", required=False)
+
+    # Controller (default is gamepad)
     parser.add_argument(
         "--controller",
         choices=["gamepad", "ai"],
         default="gamepad",
         help="Select the controller type: 'gamepad' or 'ai'. Default is 'gamepad'."
+    )
+
+    # Camera stream option
+    parser.add_argument(
+        "--stream",
+        action="store_true",
+        help="Enable camera stream for AI controller."
     )
 
     return parser.parse_args()
@@ -32,7 +42,7 @@ def main():
     if args.controller == "gamepad":
         controller = GamepadController(car)
     elif args.controller == "ai":
-        controller = AIController(car)
+        controller = AIController(car, is_camera_stream=args.stream)
     else:
         raise ValueError("Invalid controller type. Choose 'gamepad' or 'ai'.")
     print(f"Using {args.controller} controller.")

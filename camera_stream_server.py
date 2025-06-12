@@ -11,16 +11,21 @@ import pickle
 import struct
 
 class CameraStreamServer:
-    def __init__(self, host='0.0.0.0', port=8000, camera_index=0):
+    def __init__(self, host='0.0.0.0', port=8000, camera_index=0, on=False):
         self.host = host
         self.port = port
         self.camera_index = camera_index
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) if on else None
         self.conn = None
         self.addr = None
         self.cap = None
+        self.on = on
 
     def __enter__(self):
+        if not self.on:
+            print("Camera streaming is turned off.")
+            return self
+
         self.start()
         return self
 
@@ -51,6 +56,9 @@ class CameraStreamServer:
         print("Connected by", self.addr)
 
     def stream_image(self, image):
+        if not self.on:
+            return
+
         data = pickle.dumps(image)
         size = struct.pack(">L", len(data))
 
