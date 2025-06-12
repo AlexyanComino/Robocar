@@ -20,23 +20,24 @@ class CameraStreamViewer:
 
     def __enter__(self):
         self.start()
-        socket.setdefaulttimeout(None)
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         if self.client_socket:
             self.client_socket.close()
             self.client_socket = None
+
         cv2.destroyAllWindows()
 
     def start(self):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client_socket.settimeout(3)
         self.client_socket.connect((self.host, self.port))
+        self.client_socket.settimeout(None)
         print(f"Connected to {self.host}:{self.port}")
 
     def stream(self):
         while True:
-
             while len(self.data) < self.payload_size:
                 packet = self.client_socket.recv(4096)
                 if not packet:
@@ -60,7 +61,6 @@ class CameraStreamViewer:
 
     def run(self):
         with self:
-            socket.setdefaulttimeout(None)
             self.stream()
 
 
@@ -71,16 +71,16 @@ def main():
 
     ips = [ip_matys, ip_alex, ip_ambre]
 
-    socket.setdefaulttimeout(3)  # Set a default timeout for socket operations
-
     for ip in ips:
         try:
             print(f"Trying to connect to {ip}...")
-            viewer = CameraStreamViewer(host=ip)
-            viewer.run()
+            with CameraStreamViewer(host=ip, port=8000) as viewer:
+                print(f"Successfully connected to {ip} and streaming.")
+                viewer.stream()
             break
-        except Exception as e:
+        except (socket.error, pickle.UnpicklingError) as e:
             print(f"Failed to connect to {ip}: {e}")
+            continue
 
 
 if __name__ == "__main__":
