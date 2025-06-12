@@ -124,6 +124,9 @@ class AIController(IController):
 
         data = {column: 0.0 for column in init_colomns}
 
+        for i in range(self.num_rays):
+            data[f"ray_{i+1}"] = float(rays_data[f"ray_{i}"])
+
         data["speed"] = speed
 
         data["delta_speed"] = data["speed"] - self.previous_data.get("speed", 0.0)
