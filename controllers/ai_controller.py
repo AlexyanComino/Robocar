@@ -19,17 +19,17 @@ class AIController(IController):
         """
         Initialize the AIController with a model.
         """
+        import time
+
         from mask_generator.model_loader import load_model_from_run_dir
         from mask_generator.transforms import EvalTransform, TensorDecoder
         from racing.model import MyModel
-
 
         time_before_import = time.time()
         import joblib
         import torch
         print(f"Time taken to import joblib and torch: {time.time() - time_before_import:.2f} seconds")
         import depthai as dai
-        import time
 
         self.torch = torch # Store torch reference
         self.dai = dai # Store depthai reference

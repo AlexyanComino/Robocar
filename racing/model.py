@@ -17,7 +17,7 @@ class MyModel(nn.Module):
             hidden_layers (list): The size of the hidden layers
             output_size (int): The size of the output
         """
-        super(MyModel, self).__init__()
+        super().__init__()
 
         layers = []
         prev_size = input_size
