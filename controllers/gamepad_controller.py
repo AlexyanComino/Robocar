@@ -81,6 +81,9 @@ class GamepadController(IController):
         """
         import cv2
         import numpy as np
+
+        n = 0
+
         with CameraStreamServer() as camera_server:
             while True:
                 updated = self.update()
@@ -89,4 +92,9 @@ class GamepadController(IController):
                     self.car.set_actions(actions)
                     fake_image = np.zeros((480, 640, 3), dtype=np.uint8)
                     cv2_image = cv2.cvtColor(fake_image, cv2.COLOR_BGR2RGB)
-                    camera_server.stream_image(cv2_image)
+
+                    if n == 50:
+                        camera_server.stream_image(cv2_image)
+                        n = 0
+                    else:
+                        n += 1
