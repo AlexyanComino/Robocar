@@ -112,7 +112,7 @@ class AIController(IController):
         distances, ray_endpoints = generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=400)
 
         if generate_image:
-            rays_image = show_rays(mask, ray_endpoints, distances, image, num_rays=self.num_rays, fov_degrees=self.fov, max_distance=400, generate_image=True)
+            rays_image = show_rays(mask, ray_endpoints, distances, image, generate_image=True)
 
         return distances, rays_image if generate_image else None
 
