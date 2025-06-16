@@ -7,6 +7,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import cv2
 
 # -------------------------------------------
 # Ray Tracing Core
@@ -136,7 +137,6 @@ def show_rays(mask, ray_endpoints, distances, image=None, alpha=0.6, show_text=F
 
 
 if __name__ == "__main__":
-    import cv2
     # Example usage
     mask = np.zeros((100, 100), dtype=np.uint8)
     # Create two lines
