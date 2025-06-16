@@ -97,7 +97,7 @@ class AIController(IController):
 
         return pipeline
 
-    def get_rays_data(self, image: np.ndarray) -> dict:
+    def get_rays_data(self, image: np.ndarray, generate_image: bool = False) -> tuple [dict, np.ndarray | None]:
         """
         Generate rays data from the input image using the mask generator model.
         Args:
@@ -106,13 +106,17 @@ class AIController(IController):
             Dictionary containing distances and rays.
         """
         from mask_generator.model_inference import infer_mask
-        from mask_generator.ray_generator import generate_rays
+        from mask_generator.ray_generator import generate_rays, show_rays
 
         mask = infer_mask(self.mask_model, transform=self.mask_transform, decoder=self.mask_decoder, image=image, device=self.device)
         distances, _ = generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=400)
-        return distances
 
-    def get_data(self, image: np.ndarray) -> list:
+        if generate_image:
+            rays_image = show_rays(image, distances, num_rays=self.num_rays, fov_degrees=self.fov, max_distance=400, generate_image=True)
+
+        return distances, rays_image if generate_image else None
+
+    def get_data(self, image: np.ndarray, generate_image: bool = False) -> tuple[dict, np.ndarray | None]:
         """
         Prepare the input data for the AI model.
         Args:
@@ -120,7 +124,8 @@ class AIController(IController):
         Returns:
             Scaled input data as a dictionary.
         """
-        rays_data = self.get_rays_data(image)
+        rays_data, image_rays = self.get_rays_data(image, generate_image=generate_image)
+
         speed = self.car.get_speed() / 8 * 40 # Scale speed to a range of 0-40 # TEMPORARY, TRYING TO MATCH RACING SIMULATOR SPEED
 
         init_colomns = ["speed", "steering"] + [f"pos_{coord}" for coord in ['x', 'y', 'z']] \
@@ -166,7 +171,7 @@ class AIController(IController):
         # Update previous data
         self.previous_data = data.copy()
 
-        return data
+        return data, image_rays
 
     def get_actions(self, data: dict) -> dict:
         """  """
@@ -218,10 +223,11 @@ class AIController(IController):
                     frame = in_video.getCvFrame()
                     image_rgb = cvtColor(frame, COLOR_BGR2RGB)
 
+                    data, image_rays = self.get_data(image_rgb, generate_image=self.is_camera_stream)
+
                     # STREAMING
                     if self.camera_stream is not None:
-                        self.camera_stream.stream_image(image_rgb)
+                        self.camera_stream.stream_image(image_rays)
 
-                    data = self.get_data(image_rgb)
                     actions = self.get_actions(data)
                     self.car.set_actions(actions)

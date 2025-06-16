@@ -86,7 +86,7 @@ def generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=None):
 
 
 def show_rays(mask, ray_endpoints, distances, image=None, alpha=0.6, show_text=False,
-              text_interval=5, colormap_name='viridis'):
+              text_interval=5, colormap_name='viridis', generate_image=False) -> np.ndarray | None:
 
     height, width = mask.shape
     origin_x = width // 2
@@ -126,4 +126,15 @@ def show_rays(mask, ray_endpoints, distances, image=None, alpha=0.6, show_text=F
     plt.plot(origin_x, origin_y, "ro")
     plt.title("Rays visualization with distances" if show_text else "Rays visualization")
     plt.axis("equal")
-    plt.show()
+
+    if generate_image:
+        plt.axis("off")
+        plt.tight_layout()
+        fig = plt.gcf()
+        fig.canvas.draw()
+        image_data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
+        image_data = image_data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+        plt.close(fig)
+        return image_data
+    else:
+        plt.show()
