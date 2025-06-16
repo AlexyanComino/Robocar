@@ -109,10 +109,10 @@ class AIController(IController):
         from mask_generator.ray_generator import generate_rays, show_rays
 
         mask = infer_mask(self.mask_model, transform=self.mask_transform, decoder=self.mask_decoder, image=image, device=self.device)
-        distances, _ = generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=400)
+        distances, ray_endpoints = generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=400)
 
         if generate_image:
-            rays_image = show_rays(image, distances, num_rays=self.num_rays, fov_degrees=self.fov, max_distance=400, generate_image=True)
+            rays_image = show_rays(mask, ray_endpoints, distances, image, num_rays=self.num_rays, fov_degrees=self.fov, max_distance=400, generate_image=True)
 
         return distances, rays_image if generate_image else None
 

@@ -86,7 +86,7 @@ def generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=None):
 
 
 def show_rays(mask, ray_endpoints, distances, image=None, alpha=0.6, show_text=False,
-              text_interval=5, colormap_name='viridis', generate_image=False) -> np.ndarray | None:
+              text_interval=5, colormap_name='viridis', generate_image=False):
 
     height, width = mask.shape
     origin_x = width // 2
@@ -138,3 +138,22 @@ def show_rays(mask, ray_endpoints, distances, image=None, alpha=0.6, show_text=F
         return image_data
     else:
         plt.show()
+
+
+if __name__ == "__main__":
+    import cv2
+    # Example usage
+    mask = np.zeros((100, 100), dtype=np.uint8)
+    # Create two lines
+    cv2.line(mask, (10, 90), (10, 10), 255, 2)
+    cv2.line(mask, (90, 10), (90, 90), 255, 2)
+
+    distances, ray_endpoints = generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=80)
+
+    # Show the rays
+    image = show_rays(mask, ray_endpoints, distances, generate_image=True)
+
+    if image is not None:
+        cv2.imshow("Rays Visualization", image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
