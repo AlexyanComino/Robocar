@@ -97,7 +97,7 @@ class AIController(IController):
 
         return pipeline
 
-    def get_rays_data(self, image: np.ndarray, generate_image: bool = False) -> tuple [dict, np.ndarray]:
+    def get_rays_data(self, image: np.ndarray, generate_image: bool = False) -> tuple:
         """
         Generate rays data from the input image using the mask generator model.
         Args:
@@ -116,7 +116,7 @@ class AIController(IController):
 
         return distances, rays_image if generate_image else None
 
-    def get_data(self, image: np.ndarray, generate_image: bool = False) -> tuple[dict, np.ndarray]:
+    def get_data(self, image: np.ndarray, generate_image: bool = False) -> tuple:
         """
         Prepare the input data for the AI model.
         Args:
