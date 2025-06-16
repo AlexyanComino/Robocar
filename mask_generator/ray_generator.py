@@ -92,52 +92,47 @@ def show_rays(mask, ray_endpoints, distances, image=None, alpha=0.6, show_text=F
     origin_x = width // 2
     origin_y = height - 1
 
-    plt.figure(figsize=(12, 6))
-
+    # Prepare base image
     if image is not None:
         if image.shape[:2] != mask.shape:
             raise ValueError("Image and mask must have the same height and width")
-        plt.imshow(image, alpha=1.0)
-        plt.imshow(mask, cmap='gray', alpha=alpha)
+        base = image.copy()
     else:
-        plt.imshow(mask, cmap='gray')
+        base = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
 
+    # Overlay mask with alpha if image is provided
+    if image is not None and alpha < 1.0:
+        mask_colored = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+        base = cv2.addWeighted(base, 1 - alpha, mask_colored, alpha, 0)
+
+    # Normalize distances for color mapping
     dist_values = np.array([distances[f"ray_{i}"] for i in range(len(ray_endpoints))])
     dist_norm = (dist_values - dist_values.min()) / (np.ptp(dist_values) + 1e-8)
     cmap = plt.get_cmap(colormap_name)
+    colors = (np.array([cmap(val)[:3] for val in dist_norm]) * 255).astype(np.uint8)
 
+    # Draw rays
     for i, (end_x, end_y) in enumerate(ray_endpoints):
-
-        color = cmap(dist_norm[i])
-
-        plt.plot([origin_x, end_x], [origin_y, end_y], color=color)
+        color = tuple(int(c) for c in colors[i])
+        cv2.line(base, (origin_x, origin_y), (int(end_x), int(end_y)), color, 1, cv2.LINE_AA)
 
         if show_text and i % text_interval == 0:
             distance = distances[f"ray_{i}"]
+            mid_x = int((origin_x + end_x) / 2)
+            mid_y = int((origin_y + end_y) / 2)
+            offset = int(20 * np.sin(i / 2.0))
+            text_pos = (mid_x, mid_y + offset)
+            cv2.putText(base, f"{distance}", text_pos, cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255,255,255), 1, cv2.LINE_AA)
 
-            mid_x = (origin_x + end_x) / 2
-            mid_y = (origin_y + end_y) / 2
-            offset = 20 * np.sin(i / 2.0)
-
-
-            plt.text(mid_x, mid_y + offset, f"{distance}", color='white',
-                    ha='center', va='center', fontsize=8)
-
-    plt.plot(origin_x, origin_y, "ro")
-    plt.title("Rays visualization with distances" if show_text else "Rays visualization")
-    plt.axis("equal")
+    # Draw origin
+    cv2.circle(base, (origin_x, origin_y), 4, (0,0,255), -1)
 
     if generate_image:
-        plt.axis("off")
-        plt.tight_layout()
-        fig = plt.gcf()
-        fig.canvas.draw()
-        image_data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
-        image_data = image_data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-        plt.close(fig)
-        return image_data
+        return base
     else:
-        plt.show()
+        cv2.imshow("Rays visualization", base)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
