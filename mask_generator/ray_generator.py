@@ -96,7 +96,7 @@ def show_rays(mask, ray_endpoints, distances, image=None, alpha=0.6, show_text=F
     # Prepare base image
     if image is not None:
         if image.shape[:2] != mask.shape:
-            raise ValueError("Image and mask must have the same height and width")
+            image = cv2.resize(image, (width, height))
         base = image.copy()
     else:
         base = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
