@@ -1,0 +1,22 @@
+0 Pulling latest code from Git...
+ssh: Could not resolve hostname github.com: Name or service not known
+fatal : Impossible de lire le dépôt distant.
+
+Veuillez vérifier que vous avez les droits d'accès
+et que le dépôt existe.
+[INFO] Running venv setup...
+/home/robocar/Robocar/scripts/setup_venv.sh
+[0;33mSetting up Python virtual environment...[0m
+[0;36m[INFO] Virtual environment already exists: ./.venv[0m
+[0;36m[INFO] Activating virtual environment...[0m
+[0;36m[INFO] Installing dependencies...[0m
+Requirement already satisfied: pip in ./.venv/lib/python3.6/site-packages (21.3.1)
+Requirement already satisfied: setuptools in ./.venv/lib/python3.6/site-packages (59.6.0)
+Requirement already satisfied: wheel in ./.venv/lib/python3.6/site-packages (0.37.1)
+Collecting pyvesc@ git+https://github.com/LiamBindle/PyVESC.git@d2f2076afe91dafa920a38a437528819697e05e3
+  Using cached pyvesc-1.0.5-py3-none-any.whl
+Requirement already satisfied: crccheck==1.3.0 in ./.venv/lib/python3.6/site-packages (from -r requirements.txt (line 1)) (1.3.0)
+Requirement already satisfied: inputs==0.5 in ./.venv/lib/python3.6/site-packages (from -r requirements.txt (line 2)) (0.5)
+Requirement already satisfied: pyserial==3.5 in ./.venv/lib/python3.6/site-packages (from -r requirements.txt (line 3)) (3.5)
+[0;32m[OK] Dependencies installed successfully![0m
+[0;32m[DONE] Setup completed successfully![0m
