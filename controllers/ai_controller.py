@@ -22,8 +22,9 @@ class AIController(IController):
         """
         import time
 
-        from mask_generator.model_loader import load_model_from_run_dir
-        from mask_generator.transforms import EvalTransform, TensorDecoder
+        from mask_generator.models.utils import load_pad_divisor_from_run_dir
+        from mask_generator.trt_inference import TRTInference
+        from mask_generator.transforms import KorniaInferTransform
         from racing.model import MyModel
 
         time_before_import = time.time()
@@ -63,12 +64,17 @@ class AIController(IController):
 
         # Setup Mask Generator
         time_before_mask = time.time()
-        self.mask_model, pad_divisor = load_model_from_run_dir("mask_generator/best_run", self.device)
-        print(f"Time taken to load mask generator model: {time.time() - time_before_mask:.2f} seconds")
+        pad_divisor = load_pad_divisor_from_run_dir("mask_generator/best_run")
+        ENGINE_PATH = "mask_generator/best_run/model.engine"
+        self.trt_infer = TRTInference(ENGINE_PATH)
+        print(f"Time taken to load mask generator engine: {time.time() - time_before_mask:.2f} seconds")
 
         time_before_mask_transform = time.time()
-        self.mask_transform = EvalTransform(pad_divisor=pad_divisor, to_tensor=True)
-        self.mask_decoder = TensorDecoder()
+        self.mask_transform = KorniaInferTransform(
+            pad_divisor=pad_divisor,
+            device=self.device
+        )
+
         print(f"Time taken to initialize mask generator transform: {time.time() - time_before_mask_transform:.2f} seconds")
 
         # Racing Simulator data
@@ -105,10 +111,10 @@ class AIController(IController):
         Returns:
             Dictionary containing distances and rays.
         """
-        from mask_generator.model_inference import infer_mask
+        from mask_generator.utils import infer_mask
         from mask_generator.ray_generator import generate_rays, show_rays
 
-        mask = infer_mask(self.mask_model, transform=self.mask_transform, decoder=self.mask_decoder, image=image, device=self.device)
+        mask = infer_mask(self.trt_infer, self.mask_transform, image)
         distances, ray_endpoints = generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=400)
 
         if generate_image:

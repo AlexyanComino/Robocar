@@ -5,6 +5,8 @@
 ## trt_inference
 ##
 
+import os
+import torch
 import tensorrt as trt
 import pycuda.driver as cuda
 import pycuda.autoinit
@@ -14,6 +16,9 @@ class TRTInference:
     def __init__(self, engine_path: str):
         self.logger = trt.Logger(trt.Logger.WARNING)
         self.runtime = trt.Runtime(self.logger)
+
+        if not os.path.exists(engine_path):
+            raise FileNotFoundError(f"TensorRT engine file not found: {engine_path}")
 
         with open(engine_path, 'rb') as f:
             self.engine = self.runtime.deserialize_cuda_engine(f.read())
@@ -44,7 +49,6 @@ class TRTInference:
         d_output = cuda.mem_alloc(output_size)
 
         d_input_ptr = input_tensor.data_ptr()
-
         bindings = [int(d_input_ptr), int(d_output)]
 
         # Run inference
