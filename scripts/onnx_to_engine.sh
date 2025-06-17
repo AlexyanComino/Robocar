@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Usage: ./build_engine.sh model.onnx
+# Usage: ./onnx_to_engine.sh model.onnx
 
 ONNX_PATH="$1"
 
@@ -16,12 +16,13 @@ CMD=(
     trtexec
     --onnx="$ONNX_PATH"
     --saveEngine="$ENGINE_PATH"
-    --minShapes=input:1x3x256x320
-    --optShapes=input:1x3x256x320
-    --maxShapes=input:1x3x256x320
+    --minShapes=input:1x3x256x448
+    --optShapes=input:1x3x256x448
+    --maxShapes=input:1x3x256x448
     --explicitBatch
     --buildOnly
     --workspace=1024
+    --fp16
     --verbose
 )
 

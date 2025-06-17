@@ -1,0 +1,3 @@
+2025-06-17 02:30:28 | INFO     | MaskGenerator | Loaded 4817 training pairs and 1000 testing pairs.
+2025-06-17 02:30:29 | INFO     | MaskGenerator | Model created with pad_divisor: 32
+2025-06-17 03:26:44 | INFO     | MaskGenerator | Exporting model to ONNX format at /root/MaskGenerator/experiments/20250617_023025_e53ea2dd94/model.onnx with input shape (1, 3, 256, 256)

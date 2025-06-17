@@ -64,8 +64,8 @@ class AIController(IController):
 
         # Setup Mask Generator
         time_before_mask = time.time()
-        pad_divisor = load_pad_divisor_from_run_dir("mask_generator/best_run")
-        ENGINE_PATH = "mask_generator/best_run/model.engine"
+        pad_divisor = load_pad_divisor_from_run_dir("mask_generator/run")
+        ENGINE_PATH = "mask_generator/run/model_fp16.engine"
         self.trt_infer = TRTInference(ENGINE_PATH)
         print(f"Time taken to load mask generator engine: {time.time() - time_before_mask:.2f} seconds")
 
@@ -93,7 +93,7 @@ class AIController(IController):
     def init_camera(self):
         pipeline = self.dai.Pipeline()
         cam_color = pipeline.createColorCamera()
-        cam_color.setPreviewSize(455, 256)
+        cam_color.setPreviewSize(448, 256)
         cam_color.setInterleaved(False)
         cam_color.setColorOrder(self.dai.ColorCameraProperties.ColorOrder.BGR)
 

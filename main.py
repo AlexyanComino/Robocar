@@ -35,6 +35,7 @@ def parse_args():
 
 
 def main():
+    print(f"Starting main")
     args = parse_args()
 
     car = Car(port=PORT, power_limit=0.025)
