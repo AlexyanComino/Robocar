@@ -6,7 +6,7 @@
 ##
 
 import numpy as np
-
+import time
 from controllers.icontroller import IController
 from car import Car
 from camera_stream_server import CameraStreamServer
@@ -20,8 +20,6 @@ class AIController(IController):
         """
         Initialize the AIController with a model.
         """
-        import time
-
         from mask_generator.models.utils import load_pad_divisor_from_run_dir
         from mask_generator.trt_inference import TRTInference
         from mask_generator.transforms import KorniaInferTransform
@@ -114,7 +112,10 @@ class AIController(IController):
         from mask_generator.utils import infer_mask
         from mask_generator.ray_generator import generate_rays, show_rays
 
+        start = time.time()
         mask = infer_mask(self.trt_infer, self.mask_transform, image)
+        end = time.time()
+        print(f"Total Time for infer mask {end - start:.4f}")
         distances, ray_endpoints = generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=400)
 
         if generate_image:
@@ -181,6 +182,7 @@ class AIController(IController):
 
     def get_actions(self, data: dict) -> dict:
         """  """
+        start = time.time()
         input_data = [data[column] for column in self.input_columns]
         print(f"Input data: {input_data}")
         data_scaled = self.racing_scaler.transform([input_data])
@@ -189,6 +191,9 @@ class AIController(IController):
 
         with self.torch.no_grad():
             prediction = self.racing_model(data_tensor).cpu().numpy().squeeze()
+
+        end = time.time()
+        print(f"Total Time for racing model {end - start:.4f}")
 
         print(f"Prediction: {prediction}")
         return {
