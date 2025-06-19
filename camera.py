@@ -53,6 +53,6 @@ class Camera:
             latest_frame = frame
 
         if latest_frame is None:
-            return None
+            raise RuntimeError("No frame received from the camera.")
 
         return latest_frame.getCvFrame()
