@@ -143,7 +143,7 @@ def generate_rays_torch(mask_tensor: torch.Tensor, num_rays=50, fov_degrees=120,
     assert mask_tensor.ndim == 2, "mask_tensor must be a 2D tensor"
     assert mask_tensor.device.type == device, f"mask_tensor must be on {device} device"
 
-    height, width = mask.shape
+    height, width = mask_tensor.shape
     origin_x = width // 2
     origin_y = height - 1
 
