@@ -9,7 +9,7 @@ import sys
 import time
 import logging
 
-def setup_logger(name: str, level=logging.INFO) -> logging.Logger:
+def setup_logger(name: str, level=logging.DEBUG) -> logging.Logger:
     """
     Configure and return a logger with the specified name and level.
     If the logger already has handlers, it will not add new ones to avoid duplication.
@@ -38,12 +38,13 @@ def setup_logger(name: str, level=logging.INFO) -> logging.Logger:
     return logger
 
 class TimeLogger:
-    def __init__(self, message: str, logger: logging.Logger):
+    def __init__(self, message: str, logger: logging.Logger, level=logging.DEBUG):
         """
         Initialize the TimeLogger with a message, logger, and logging level.
         """
         self.message = message
         self.logger = logger
+        self.level = level
 
     def __enter__(self):
         """
@@ -54,4 +55,4 @@ class TimeLogger:
 
     def __exit__(self, exc_type, exc_value, traceback):
         duration = time.perf_counter() - self.start
-        self.logger.info(f"{self.message} took {duration:.4f} seconds")
+        self.logger.log(self.level, f"{self.message} took {duration:.4f} seconds")

@@ -105,8 +105,7 @@ class AIController(IController):
         from mask_generator.utils import get_mask
         from mask_generator.ray_generator import generate_rays, show_rays
 
-        with TimeLogger("Generating mask from image", logger):
-            mask = get_mask(self.mask_model, self.mask_transform, image)
+        mask = get_mask(self.mask_model, self.mask_transform, image)
 
         with TimeLogger("Generating rays from mask", logger):
             distances, ray_endpoints = generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=400)
@@ -216,7 +215,8 @@ class AIController(IController):
                     if delta > 0:
                         fps_history.append(1.0 / delta)
                     avg_fps = sum(fps_history) / len(fps_history)
-                    print(f"\rAverage FPS: {avg_fps:.2f}  ", end='')
+                    logger.debug(f"Average FPS: {avg_fps:.2f}")
+                    # print(f"\rAverage FPS: {avg_fps:.2f}  ", end='')
                     in_video = video_queue.get()
                     frame = in_video.getCvFrame()
                     image_rgb = cvtColor(frame, COLOR_BGR2RGB)

@@ -9,19 +9,21 @@ import torch
 import numpy as np
 from mask_generator.transforms import KorniaInferTransform
 from mask_generator.trt_wrapper import TRTWrapper
+from logger import setup_logger, TimeLogger
+
+logger = setup_logger(__name__)
 
 def get_mask(mask_model: TRTWrapper, transform: KorniaInferTransform, image: np.ndarray) -> np.ndarray:
     """Run inference on an image to generate a mask."""
 
-    # print("Transforming image")
-    # t1 = time.time()
     # Preprocess the image
-    img_tensor = transform(image).unsqueeze(0).contiguous()
-    # print("Is contiguous:", img_tensor.is_contiguous())
-    # print(f"[INFER_MASK] Transform image exectuted in {time.time() - t1:.4f}s")
+    with TimeLogger("Transforming image", logger):
+        img_tensor = transform(image).unsqueeze(0).contiguous()
 
-    output = mask_model(img_tensor)
-    output = torch.sigmoid(output)
+    with TimeLogger("Running inference on mask model", logger):
+        output = mask_model(img_tensor)
+        output = torch.sigmoid(output)
 
-    mask_np = transform.to_mask(output.cpu())
+    with TimeLogger("Converting output to mask", logger):
+        mask_np = transform.to_mask(output.cpu())
     return mask_np
