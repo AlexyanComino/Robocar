@@ -98,4 +98,4 @@ class KorniaInferTransform(BaseTransform):
         if tensor.dim() == 3:
             tensor = tensor.squeeze(0) # [C, H, W] -> [H, W]
 
-        return (tensor > threshold).float()
+        return (tensor > threshold).float() * 255.0

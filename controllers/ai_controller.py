@@ -117,8 +117,9 @@ class AIController(IController):
             distances, ray_endpoints = generate_rays_torch(mask_tensor, num_rays=50, fov_degrees=120, max_distance=400, device=self.device)
 
         rays_image = None
-        # if generate_image:
-        #     rays_image = show_rays(mask, ray_endpoints, distances, image, generate_image=True)
+        if generate_image:
+            mask = mask_tensor.cpu().numpy()
+            rays_image = show_rays(mask, ray_endpoints, distances, image, generate_image=True)
 
         return distances, rays_image if rays_image else None
 
