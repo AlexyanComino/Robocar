@@ -83,19 +83,19 @@ class KorniaInferTransform(BaseTransform):
         image = image.permute(1, 2, 0).cpu().numpy() # [C,H,W] -> [H,W,C]
         return (image * 255).astype(np.uint8)
 
-    # def to_mask(self, tensor: torch.Tensor, threshold: float = 0.5) -> np.ndarray:
-    #     if tensor.dim() == 4:
-    #         tensor = tensor.squeeze(0) # [B, C, H, W] -> [C, H, W]
-    #     if tensor.dim() == 3:
-    #         tensor = tensor.squeeze(0) # [C, H, W] -> [H, W]
-
-    #     mask = tensor.cpu().numpy()
-    #     return (mask > threshold).astype(np.uint8) * 255
-
-    def to_mask_tensor(self, tensor: torch.Tensor, threshold: float = 0.5) -> torch.Tensor:
+    def to_mask(self, tensor: torch.Tensor, threshold: float = 0.5) -> np.ndarray:
         if tensor.dim() == 4:
             tensor = tensor.squeeze(0) # [B, C, H, W] -> [C, H, W]
         if tensor.dim() == 3:
             tensor = tensor.squeeze(0) # [C, H, W] -> [H, W]
 
-        return (tensor > threshold).float() * 255.0
+        mask = tensor.cpu().numpy()
+        return (mask > threshold).astype(np.uint8) * 255
+
+    # def to_mask_tensor(self, tensor: torch.Tensor, threshold: float = 0.5) -> torch.Tensor:
+    #     if tensor.dim() == 4:
+    #         tensor = tensor.squeeze(0) # [B, C, H, W] -> [C, H, W]
+    #     if tensor.dim() == 3:
+    #         tensor = tensor.squeeze(0) # [C, H, W] -> [H, W]
+
+    #     return (tensor > threshold).float() * 255.0

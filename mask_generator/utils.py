@@ -24,9 +24,7 @@ def get_mask(mask_model: TRTWrapper, transform: KorniaInferTransform, image: np.
         output = mask_model(img_tensor)
         output = torch.sigmoid(output)
 
-    # with TimeLogger("Converting output to mask", logger):
-        # mask_np = transform.to_mask(output.cpu())
-    # return mask_np
     with TimeLogger("Converting output to mask", logger):
-        mask_tensor = transform.to_mask_tensor(output)
-    return mask_tensor
+        mask_np = transform.to_mask(output.cpu())
+    return mask_np
+
