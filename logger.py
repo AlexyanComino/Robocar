@@ -38,13 +38,12 @@ def setup_logger(name: str, level=logging.INFO) -> logging.Logger:
     return logger
 
 class TimeLogger:
-    def __init__(self, message: str, logger: logging.Logger, level=logging.DEBUG):
+    def __init__(self, message: str, logger: logging.Logger):
         """
         Initialize the TimeLogger with a message, logger, and logging level.
         """
         self.message = message
         self.logger = logger
-        self.level = level
 
     def __enter__(self):
         """
@@ -55,9 +54,4 @@ class TimeLogger:
 
     def __exit__(self, exc_type, exc_value, traceback):
         duration = time.perf_counter() - self.start
-        self.logger.log(self.level, f"{self.message} took {duration:.4f} seconds")
-        self.logger.info(f"{self.message} took {duration:.4f} seconds")
         self.logger.debug(f"{self.message} took {duration:.4f} seconds")
-        self.logger.warning(f"{self.message} took {duration:.4f} seconds")
-        self.logger.error(f"{self.message} took {duration:.4f} seconds")
-        self.logger.critical(f"{self.message} took {duration:.4f} seconds")
