@@ -217,15 +217,20 @@ class AIController(IController):
                     avg_fps = sum(fps_history) / len(fps_history)
                     logger.debug(f"Average FPS: {avg_fps:.2f}")
                     # print(f"\rAverage FPS: {avg_fps:.2f}  ", end='')
-                    in_video = video_queue.get()
-                    frame = in_video.getCvFrame()
-                    image_rgb = cvtColor(frame, COLOR_BGR2RGB)
+                    with TimeLogger("Processing video frame", logger):
+                        with TimeLogger("Getting video frame from queue", logger):
+                            in_video = video_queue.get()
+                            frame = in_video.getCvFrame()
+                            image_rgb = cvtColor(frame, COLOR_BGR2RGB)
 
-                    data, image_rays = self.get_data(image_rgb, generate_image=self.streaming)
+                        with TimeLogger("Getting data from image", logger):
+                            data, image_rays = self.get_data(image_rgb, generate_image=self.streaming)
 
-                    # STREAMING
-                    if self.camera_stream is not None:
-                        self.camera_stream.stream_image(image_rays)
+                        # STREAMING
+                        if self.camera_stream is not None:
+                            self.camera_stream.stream_image(image_rays)
 
-                    actions = self.get_actions(data)
-                    self.car.set_actions(actions)
+                        with TimeLogger("Getting actions from data", logger):
+                            actions = self.get_actions(data)
+                        with TimeLogger("Setting actions to car", logger):
+                            self.car.set_actions(actions)
