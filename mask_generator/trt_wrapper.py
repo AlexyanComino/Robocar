@@ -19,7 +19,7 @@ logger = setup_logger(__name__)
 
 class TRTWrapper:
     def __init__(self, engine_path: str, device: str = "cuda"):
-        self.device = device
+        self.device = torch.device(device)
         assert device == "cuda", "TensorRT only supports CUDA device"
         trt_logger = trt.Logger(trt.Logger.WARNING)
         self.runtime = trt.Runtime(trt_logger)
@@ -81,7 +81,7 @@ class TRTWrapper:
             self.context.set_binding_shape(self.input_index, input_tensor.shape)
 
             # Output info
-            output_shape = self.context.get_binding_shape(self.output_index)
+            output_shape = tuple(self.context.get_binding_shape(self.output_index))
             output_dtype = trt.nptype(self.engine.get_binding_dtype(self.output_index))
             torch_dtype = torch.from_numpy(np.empty((), dtype=output_dtype)).dtype
 
