@@ -206,7 +206,7 @@ class AIController(IController):
 
             prev_time = time.time()
 
-            with CameraStreamServer(on=self.is_camera_stream) as stream:
+            with CameraStreamServer(on=self.streaming) as stream:
                 self.camera_stream = stream
 
                 while True:
