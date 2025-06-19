@@ -41,7 +41,7 @@ def main():
     car = Car(port=PORT, power_limit=0.025)
     controller_cls = {
         "gamepad": GamepadController,
-        "ai": lambda car: AIController(car, is_camera_stream=args.stream)
+        "ai": lambda car: AIController(car, streaming=args.stream)
     }[args.controller]
     print(f"Using {args.controller} controller.")
 
