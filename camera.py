@@ -53,6 +53,6 @@ class Camera:
             latest_frame = frame
 
         if latest_frame is None:
-            raise RuntimeError("No frame received from the camera.")
+            latest_frame = self.video_queue.get()
 
         return latest_frame.getCvFrame()
