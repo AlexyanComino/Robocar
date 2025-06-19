@@ -5,9 +5,10 @@
 ## ray_distance
 ##
 
+import cv2
+import torch
 import numpy as np
 import matplotlib.pyplot as plt
-import cv2
 
 # -------------------------------------------
 # Ray Tracing Core
@@ -134,6 +135,52 @@ def generate_rays_vectorized(mask, num_rays=50, fov_degrees=120, max_distance=No
             end_y = y[-1, i]
         distances[f"ray_{i}"] = dist
         ray_endpoints.append((end_x, end_y))
+
+    return distances, ray_endpoints
+
+def generate_rays_torch(mask_tensor: torch.Tensor, num_rays=50, fov_degrees=120, max_distance=400, device='cuda'):
+    assert isinstance(mask_tensor, torch.Tensor), "mask_tensor must be a torch.Tensor"
+    assert mask_tensor.ndim == 2, "mask_tensor must be a 2D tensor"
+    assert mask_tensor.device.type == device, f"mask_tensor must be on {device} device"
+
+    height, width = mask.shape
+    origin_x = width // 2
+    origin_y = height - 1
+
+    angles = torch.linspace(-fov_degrees/2, fov_degrees/2, steps=num_rays, device=device)
+    angles_rad = torch.deg2rad(angles)
+
+    dx = torch.sin(angles_rad)
+    dy = -torch.cos(angles_rad)
+
+    dists = torch.arange(1, max_distance+1, device=device).unsqueeze(1)  # (D, 1)
+
+    x = (origin_x + dx * dists).long()  # (D, R)
+    y = (origin_y + dy * dists).long()
+
+    valid = (x >= 0) & (x < width) & (y >= 0) & (y < height)
+
+    mask_vals = torch.zeros_like(valid, dtype=torch.bool)
+    mask_vals[valid] = mask_tensor[y[valid], x[valid]] > 0.0
+
+    hit_indices = torch.argmax(mask_vals.int(), dim=0)
+    hit_mask = mask_vals.any(dim=0)
+
+    ray_endpoints = []
+    distances = {}
+
+    for i in range(num_rays):
+        if hit_mask[i]:
+            dist = hit_indices[i].item() + 1
+            ex = x[hit_indices[i], i].item()
+            ey = y[hit_indices[i], i].item()
+        else:
+            dist = max_distance
+            ex = x[-1, i].item()
+            ey = y[-1, i].item()
+
+        distances[f"ray_{i}"] = dist
+        ray_endpoints.append((ex, ey))
 
     return distances, ray_endpoints
 

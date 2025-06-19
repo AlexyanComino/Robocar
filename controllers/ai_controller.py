@@ -103,17 +103,24 @@ class AIController(IController):
             Dictionary containing distances and rays.
         """
         from mask_generator.utils import get_mask
-        from mask_generator.ray_generator import generate_rays_vectorized, show_rays
+        from mask_generator.ray_generator import generate_rays_torch, generate_rays_vectorized, show_rays
 
-        mask = get_mask(self.mask_model, self.mask_transform, image)
+        # with TimeLogger("Generating mask from image", logger):
+        #     mask = get_mask(self.mask_model, self.mask_transform, image)
+        with TimeLogger("Generating mask from image", logger):
+            mask_tensor = get_mask(self.mask_model, self.mask_transform, image)
+
+        # with TimeLogger("Generating rays from mask", logger):
+        #     distances, ray_endpoints = generate_rays_vectorized(mask_tensor, num_rays=50, fov_degrees=120, max_distance=400)
 
         with TimeLogger("Generating rays from mask", logger):
-            distances, ray_endpoints = generate_rays_vectorized(mask, num_rays=50, fov_degrees=120, max_distance=400)
+            distances, ray_endpoints = generate_rays_torch(mask_tensor, num_rays=50, fov_degrees=120, max_distance=400, device=self.device)
 
-        if generate_image:
-            rays_image = show_rays(mask, ray_endpoints, distances, image, generate_image=True)
+        rays_image = None
+        # if generate_image:
+        #     rays_image = show_rays(mask, ray_endpoints, distances, image, generate_image=True)
 
-        return distances, rays_image if generate_image else None
+        return distances, rays_image if rays_image else None
 
     def get_data(self, image: np.ndarray, generate_image: bool = False) -> tuple:
         """
