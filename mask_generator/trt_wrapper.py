@@ -21,6 +21,8 @@ class TRTWrapper:
     def __init__(self, engine_path: str, device: str = "cuda"):
         self.device = device
         print(f"Using device: {self.device}")
+        print(self.device == "cuda")
+        print(device)
         assert device != "cuda", "TensorRT only supports CUDA device"
         trt_logger = trt.Logger(trt.Logger.WARNING)
         self.runtime = trt.Runtime(trt_logger)
