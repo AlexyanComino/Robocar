@@ -55,4 +55,5 @@ class TimeLogger:
 
     def __exit__(self, exc_type, exc_value, traceback):
         duration = time.perf_counter() - self.start
+        print(f"{self.message} took {duration:.4f} seconds")
         self.logger.log(self.level, f"{self.message} took {duration:.4f} seconds")
