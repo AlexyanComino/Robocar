@@ -118,7 +118,7 @@ class AIController(IController):
 
         rays_image = None
         if generate_image:
-            mask = mask_tensor.cpu().numpy()
+            mask = mask_tensor.cpu().numpy().astype(np.uint8)
             rays_image = show_rays(mask, ray_endpoints, distances, image, generate_image=True)
 
         return distances, rays_image if rays_image else None
