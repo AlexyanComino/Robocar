@@ -8,6 +8,7 @@
 import numpy as np
 from controllers.icontroller import IController
 from car import Car
+from camera import Camera
 from camera_stream_server import CameraStreamServer
 from logger import setup_logger, TimeLogger
 
@@ -19,9 +20,7 @@ class AIController(IController):
     This controller handles the interaction with the AI model.
     """
     def __init__(self, car: Car, streaming: bool = False):
-        """
-        Initialize the AIController with a model.
-        """
+        """ Initialize the AIController with a model. """
         from mask_generator.models.utils import load_pad_divisor_from_run_dir
         from mask_generator.trt_wrapper import TRTWrapper
         from mask_generator.transforms import KorniaInferTransform
@@ -41,7 +40,7 @@ class AIController(IController):
         self.streaming = streaming
 
         with TimeLogger("Initializing camera pipeline", logger):
-            self.pipeline = self.init_camera()
+            self.camera = Camera()
 
         # Setup Racing Simulator
         model_path = "model24220ce995.joblib"
@@ -80,19 +79,6 @@ class AIController(IController):
         self.previous_data = {}
 
         self.camera_stream = None
-
-    def init_camera(self):
-        pipeline = self.dai.Pipeline()
-        cam_color = pipeline.createColorCamera()
-        cam_color.setPreviewSize(448, 256)
-        cam_color.setInterleaved(False)
-        cam_color.setColorOrder(self.dai.ColorCameraProperties.ColorOrder.BGR)
-
-        xout = pipeline.createXLinkOut()
-        xout.setStreamName("video")
-        cam_color.preview.link(xout.input)
-
-        return pipeline
 
     def get_rays_data(self, image: np.ndarray, generate_image: bool = False) -> tuple:
         """
@@ -201,8 +187,7 @@ class AIController(IController):
         from collections import deque
         from cv2 import cvtColor, COLOR_BGR2RGB
 
-        with self.dai.Device(self.pipeline) as cam_device:
-            video_queue = cam_device.getOutputQueue(name="video", maxSize=4, blocking=False)
+        with Camera() as camera:
             fps_history = deque(maxlen=30)
 
             prev_time = time.time()
@@ -221,8 +206,7 @@ class AIController(IController):
                     # print(f"\rAverage FPS: {avg_fps:.2f}  ", end='')
                     with TimeLogger("Processing video frame", logger):
                         with TimeLogger("Getting video frame from queue", logger):
-                            in_video = video_queue.get()
-                            frame = in_video.getCvFrame()
+                            frame = camera.get_frame()
                             image_rgb = cvtColor(frame, COLOR_BGR2RGB)
 
                         with TimeLogger("Getting data from image", logger):
