@@ -40,27 +40,27 @@ class AIController(IController):
         # Setup Racing Simulator
         model_path = "model24220ce995.joblib"
 
-        # with TimeLogger("Loading Racing Simulator model", logger):
-        #     self.racing_model = MyModel(input_size=57, hidden_layers=[32, 64, 128, 64, 32], output_size=2).to(self.device)
+        with TimeLogger("Loading Racing Simulator model", logger):
+            self.racing_model = MyModel(input_size=57, hidden_layers=[32, 64, 128, 64, 32], output_size=2).to(self.device)
 
-        # with TimeLogger(f"Loading racing model weights from {model_path}", logger):
-        #     save_dict = joblib.load(model_path)
-        #     self.racing_model.load_state_dict(save_dict["model_weights"])
+        with TimeLogger(f"Loading racing model weights from {model_path}", logger):
+            save_dict = joblib.load(model_path)
+            self.racing_model.load_state_dict(save_dict["model_weights"])
 
-        # self.racing_model.eval()
-        # self.racing_scaler = save_dict["scaler"]
+        self.racing_model.eval()
+        self.racing_scaler = save_dict["scaler"]
 
-        # # Setup Mask Generator
-        # with TimeLogger("Loading Mask Generator model", logger):
-        #     pad_divisor = load_pad_divisor_from_run_dir("mask_generator/run")
-        #     ENGINE_PATH = "mask_generator/run/model_fp16.engine"
-        #     self.mask_model = TRTWrapper(ENGINE_PATH, device=self.device)
+        # Setup Mask Generator
+        with TimeLogger("Loading Mask Generator model", logger):
+            pad_divisor = load_pad_divisor_from_run_dir("mask_generator/run")
+            ENGINE_PATH = "mask_generator/run/model_fp16.engine"
+            self.mask_model = TRTWrapper(ENGINE_PATH, device=self.device)
 
-        # with TimeLogger("Initializing mask generator transform", logger):
-        #     self.mask_transform = KorniaInferTransform(
-        #         pad_divisor=pad_divisor,
-        #         device=self.device
-        #     )
+        with TimeLogger("Initializing mask generator transform", logger):
+            self.mask_transform = KorniaInferTransform(
+                pad_divisor=pad_divisor,
+                device=self.device
+            )
 
         # Racing Simulator data
         self.fov = 120
