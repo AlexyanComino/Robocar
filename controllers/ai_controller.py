@@ -94,7 +94,8 @@ class AIController(IController):
 
         rays_image = None
         if generate_image:
-            rays_image = show_rays(mask, ray_endpoints, distances, image, generate_image=True)
+            with TimeLogger("Showing rays on image", logger):
+                rays_image = show_rays(mask, ray_endpoints, distances, image, generate_image=True)
 
         return distances, rays_image
 
@@ -108,50 +109,51 @@ class AIController(IController):
         """
         rays_data, image_rays = self.get_rays_data(image, generate_image=generate_image)
 
-        speed = self.car.get_speed() / 8 * 40 # Scale speed to a range of 0-40 # TEMPORARY, TRYING TO MATCH RACING SIMULATOR SPEED
+        with TimeLogger("Calculating features", logger):
+            speed = self.car.get_speed() / 8 * 40 # Scale speed to a range of 0-40 # TEMPORARY, TRYING TO MATCH RACING SIMULATOR SPEED
 
-        init_colomns = ["speed", "steering"] + [f"pos_{coord}" for coord in ['x', 'y', 'z']] \
-                + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
+            init_colomns = ["speed", "steering"] + [f"pos_{coord}" for coord in ['x', 'y', 'z']] \
+                    + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
 
-        data = {column: 0.0 for column in init_colomns}
+            data = {column: 0.0 for column in init_colomns}
 
-        for i in range(self.num_rays):
-            data[f"ray_{i+1}"] = float(rays_data[f"ray_{i}"])
+            for i in range(self.num_rays):
+                data[f"ray_{i+1}"] = float(rays_data[f"ray_{i}"])
 
-        data["speed"] = speed
+            data["speed"] = speed
 
-        data["delta_speed"] = data["speed"] - self.previous_data.get("speed", 0.0)
-        data["delta_steering"] = data["steering"] - self.previous_data.get("steering", 0.0)
+            data["delta_speed"] = data["speed"] - self.previous_data.get("speed", 0.0)
+            data["delta_steering"] = data["steering"] - self.previous_data.get("steering", 0.0)
 
-        ray_values = np.array([rays_data[f"ray_{i}"] / 400 * 250 for i in range(50)]) # TEMPORARY, TRYING TO MATCH RACING SIMULATOR RAY VALUES
+            ray_values = np.array([rays_data[f"ray_{i}"] / 400 * 250 for i in range(50)]) # TEMPORARY, TRYING TO MATCH RACING SIMULATOR RAY VALUES
 
-        # Find the closest ray to the car
-        closest_ray_index = np.argmin(ray_values)
-        angle_step = self.fov / (self.num_rays - 1)
-        data["angle_closest_ray"] = -(self.fov / 2) + closest_ray_index * angle_step
+            # Find the closest ray to the car
+            closest_ray_index = np.argmin(ray_values)
+            angle_step = self.fov / (self.num_rays - 1)
+            data["angle_closest_ray"] = -(self.fov / 2) + closest_ray_index * angle_step
 
-        # Calculate the average, standard deviation, min, and max of the ray values
-        data["avg_ray"] = np.mean(ray_values)
-        data["std_ray"] = np.std(ray_values)
-        data["min_ray"] = np.min(ray_values)
-        data["max_ray"] = np.max(ray_values)
+            # Calculate the average, standard deviation, min, and max of the ray values
+            data["avg_ray"] = np.mean(ray_values)
+            data["std_ray"] = np.std(ray_values)
+            data["min_ray"] = np.min(ray_values)
+            data["max_ray"] = np.max(ray_values)
 
-        left_indices = range(self.num_rays // 3)
-        center_indices = range(self.num_rays // 3, 2 * self.num_rays // 3)
-        right_indices = range(2 * self.num_rays // 3, self.num_rays)
+            left_indices = range(self.num_rays // 3)
+            center_indices = range(self.num_rays // 3, 2 * self.num_rays // 3)
+            right_indices = range(2 * self.num_rays // 3, self.num_rays)
 
-        data["avg_ray_left"] = np.mean(ray_values[list(left_indices)])
-        data["avg_ray_center"] = np.mean(ray_values[list(center_indices)])
-        data["avg_ray_right"] = np.mean(ray_values[list(right_indices)])
+            data["avg_ray_left"] = np.mean(ray_values[list(left_indices)])
+            data["avg_ray_center"] = np.mean(ray_values[list(center_indices)])
+            data["avg_ray_right"] = np.mean(ray_values[list(right_indices)])
 
-        data["ray_balance"] = data["avg_ray_right"] - data["avg_ray_left"]
+            data["ray_balance"] = data["avg_ray_right"] - data["avg_ray_left"]
 
-        # Acceleration calculation
-        prev_delta_speed = self.previous_data.get("delta_speed", 0.0)
-        data["acceleration"] = data["delta_speed"] - prev_delta_speed
+            # Acceleration calculation
+            prev_delta_speed = self.previous_data.get("delta_speed", 0.0)
+            data["acceleration"] = data["delta_speed"] - prev_delta_speed
 
-        # Update previous data
-        self.previous_data = data.copy()
+            # Update previous data
+            self.previous_data = data.copy()
 
         return data, image_rays
 
