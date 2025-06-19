@@ -45,8 +45,14 @@ class Camera:
         if not self.video_queue:
             raise RuntimeError("Camera not initialized. Use 'with Camera() as cam:' to initialize.")
 
-        frame = self.video_queue.get()
-        if frame is None:
+        latest_frame = None
+        while True:
+            frame = self.video_queue.tryGet()
+            if frame is None:
+                break
+            latest_frame = frame
+
+        if latest_frame is None:
             return None
 
-        return frame.getCvFrame()
+        return latest_frame.getCvFrame()
