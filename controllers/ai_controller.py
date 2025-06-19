@@ -121,7 +121,7 @@ class AIController(IController):
             mask = mask_tensor.cpu().numpy().astype(np.uint8)
             rays_image = show_rays(mask, ray_endpoints, distances, image, generate_image=True)
 
-        return distances, rays_image if rays_image else None
+        return distances, rays_image
 
     def get_data(self, image: np.ndarray, generate_image: bool = False) -> tuple:
         """
