@@ -43,9 +43,10 @@ def main():
         "gamepad": GamepadController,
         "ai": lambda car: AIController(car, streaming=args.stream)
     }[args.controller]
-    print(f"Using {args.controller} controller.")
 
     controller = controller_cls(car)
+
+    print(f"Using {args.controller} controller.")
     controller.run()
 
 if __name__ == "__main__":

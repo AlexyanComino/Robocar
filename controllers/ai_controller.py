@@ -60,7 +60,7 @@ class AIController(IController):
         with TimeLogger("Loading Mask Generator model", logger):
             pad_divisor = load_pad_divisor_from_run_dir("mask_generator/run")
             ENGINE_PATH = "mask_generator/run/model_fp16.engine"
-            self.mask_model = TRTWrapper(ENGINE_PATH)
+            self.mask_model = TRTWrapper(ENGINE_PATH, device=self.device)
 
         with TimeLogger("Initializing mask generator transform", logger):
             self.mask_transform = KorniaInferTransform(
