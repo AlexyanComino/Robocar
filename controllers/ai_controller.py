@@ -36,7 +36,7 @@ class AIController(IController):
         self.dai = dai # Store depthai reference
 
         self.device = "cuda" if self.torch.cuda.is_available() else "cpu"
-        print(f"Using device: {self.device}")
+        logger.info(f"Using device: {self.device}")
         self.car = car
         self.streaming = streaming
 
@@ -103,12 +103,12 @@ class AIController(IController):
             Dictionary containing distances and rays.
         """
         from mask_generator.utils import get_mask
-        from mask_generator.ray_generator import generate_rays, show_rays
+        from mask_generator.ray_generator import generate_rays_vectorized, show_rays
 
         mask = get_mask(self.mask_model, self.mask_transform, image)
 
         with TimeLogger("Generating rays from mask", logger):
-            distances, ray_endpoints = generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=400)
+            distances, ray_endpoints = generate_rays_vectorized(mask, num_rays=50, fov_degrees=120, max_distance=400)
 
         if generate_image:
             rays_image = show_rays(mask, ray_endpoints, distances, image, generate_image=True)

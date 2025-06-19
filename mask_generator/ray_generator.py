@@ -85,6 +85,57 @@ def generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=None):
 
     return distances, ray_endpoints
 
+def generate_rays_vectorized(mask, num_rays=50, fov_degrees=120, max_distance=None):
+    """
+    Vectorized version of ray generation for improved performance.
+    """
+    mask = ensure_numpy_array(mask)
+    height, width = mask.shape
+    origin_x = width // 2
+    origin_y = height - 1
+
+    # Prepare angle array
+    angles = np.linspace(-fov_degrees / 2, fov_degrees / 2, num_rays)
+    angles_rad = np.radians(angles)
+
+    # Compute direction vectors for all rays
+    dx = np.sin(angles_rad)  # shape: (num_rays,)
+    dy = -np.cos(angles_rad) # shape: (num_rays,)
+
+    # Prepare all distances for each ray (broadcasted)
+    dists = np.arange(1, max_distance + 1).reshape(-1, 1)
+
+    # Compute all x, y positions for each step of each ray
+    x = (origin_x + dx * dists).astype(np.int32)  # shape: (max_distance, num_rays)
+    y = (origin_y + dy * dists).astype(np.int32)  # shape: (max_distance, num_rays)
+
+    # Mask bounds
+    valid = (x >= 0) & (x < width) & (y >= 0) & (y < height)
+
+    # Sample mask values
+    mask_vals = np.zeros_like(valid, dtype=bool)
+    mask_vals[valid] = mask[y[valid], x[valid]] > 0  # obstacle = white pixel
+
+    # Find first hit (axis=0 = distance steps)
+    hit_indices = mask_vals.argmax(axis=0)
+    hit_mask = mask_vals.any(axis=0)
+
+    distances = {}
+    ray_endpoints = []
+
+    for i in range(num_rays):
+        if hit_mask[i]:
+            dist = hit_indices[i] + 1  # +1 since range starts from 1
+            end_x = x[hit_indices[i], i]
+            end_y = y[hit_indices[i], i]
+        else:
+            dist = max_distance
+            end_x = x[-1, i]
+            end_y = y[-1, i]
+        distances[f"ray_{i}"] = dist
+        ray_endpoints.append((end_x, end_y))
+
+    return distances, ray_endpoints
 
 def show_rays(mask, ray_endpoints, distances, image=None, alpha=0.6, show_text=False,
               text_interval=5, colormap_name='viridis', generate_image=False):
