@@ -29,11 +29,11 @@ class Camera:
 
 
     def init_camera(self, width=448, height=256):
-        pipeline = self.dai.Pipeline()
+        pipeline = dai.Pipeline()
         cam_color = pipeline.createColorCamera()
         cam_color.setPreviewSize(width, height)
         cam_color.setInterleaved(False)
-        cam_color.setColorOrder(self.dai.ColorCameraProperties.ColorOrder.BGR)
+        cam_color.setColorOrder(dai.ColorCameraProperties.ColorOrder.BGR)
 
         xout = pipeline.createXLinkOut()
         xout.setStreamName("video")

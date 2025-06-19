@@ -29,18 +29,13 @@ class AIController(IController):
         with TimeLogger("Import joblib torch and depthai", logger):
             import joblib
             import torch
-            import depthai as dai
 
         self.torch = torch # Store torch reference
-        self.dai = dai # Store depthai reference
 
         self.device = "cuda" if self.torch.cuda.is_available() else "cpu"
         logger.info(f"Using device: {self.device}")
         self.car = car
         self.streaming = streaming
-
-        with TimeLogger("Initializing camera pipeline", logger):
-            self.camera = Camera()
 
         # Setup Racing Simulator
         model_path = "model24220ce995.joblib"
