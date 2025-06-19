@@ -39,14 +39,13 @@ def main():
     args = parse_args()
 
     car = Car(port=PORT, power_limit=0.025)
-    if args.controller == "gamepad":
-        controller = GamepadController(car)
-    elif args.controller == "ai":
-        controller = AIController(car, is_camera_stream=args.stream)
-    else:
-        raise ValueError("Invalid controller type. Choose 'gamepad' or 'ai'.")
+    controller_cls = {
+        "gamepad": GamepadController,
+        "ai": lambda car: AIController(car, is_camera_stream=args.stream)
+    }[args.controller]
     print(f"Using {args.controller} controller.")
 
+    controller = controller_cls(car)
     controller.run()
 
 if __name__ == "__main__":

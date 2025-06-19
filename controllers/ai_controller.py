@@ -6,74 +6,67 @@
 ##
 
 import numpy as np
-import time
 from controllers.icontroller import IController
 from car import Car
 from camera_stream_server import CameraStreamServer
+from logger import setup_logger, TimeLogger
+
+logger = setup_logger(__name__)
 
 class AIController(IController):
     """
     Controller for the AI model in the Robocar project.
     This controller handles the interaction with the AI model.
     """
-    def __init__(self, car: Car, is_camera_stream: bool = False):
+    def __init__(self, car: Car, streaming: bool = False):
         """
         Initialize the AIController with a model.
         """
         from mask_generator.models.utils import load_pad_divisor_from_run_dir
-        from mask_generator.trt_inference import TRTInference
+        from mask_generator.trt_wrapper import TRTWrapper
         from mask_generator.transforms import KorniaInferTransform
         from racing.model import MyModel
 
-        time_before_import = time.time()
-        import joblib
-        import torch
-        print(f"Time taken to import joblib and torch: {time.time() - time_before_import:.2f} seconds")
-        import depthai as dai
+        with TimeLogger("Import joblib torch and depthai", logger):
+            import joblib
+            import torch
+            import depthai as dai
 
         self.torch = torch # Store torch reference
         self.dai = dai # Store depthai reference
-        print(f"Time taken to import modules: {time.time() - time_before_import:.2f} seconds")
 
         self.device = "cuda" if self.torch.cuda.is_available() else "cpu"
         print(f"Using device: {self.device}")
         self.car = car
-        self.is_camera_stream = is_camera_stream
+        self.streaming = streaming
 
-        time_before_camera = time.time()
-        self.pipeline = self.init_camera()
-        print(f"Time taken to initialize camera: {time.time() - time_before_camera:.2f} seconds")
+        with TimeLogger("Initializing camera pipeline", logger):
+            self.pipeline = self.init_camera()
+
         # Setup Racing Simulator
         model_path = "model24220ce995.joblib"
 
-        time_before_model = time.time()
-        self.racing_model = MyModel(input_size=57, hidden_layers=[32, 64, 128, 64, 32], output_size=2).to(self.device)
-        print(f"Time taken to initialize model: {time.time() - time_before_model:.2f} seconds")
+        with TimeLogger("Loading Racing Simulator model", logger):
+            self.racing_model = MyModel(input_size=57, hidden_layers=[32, 64, 128, 64, 32], output_size=2).to(self.device)
 
-        time_before_load = time.time()
-        save_dict = joblib.load(model_path)
-        print(f"Time taken to load model weights: {time.time() - time_before_load:.2f} seconds")
+        with TimeLogger(f"Loading racing model weights from {model_path}", logger):
+            save_dict = joblib.load(model_path)
+            self.racing_model.load_state_dict(save_dict["model_weights"])
 
-        time_before_load_weights = time.time()
-        self.racing_model.load_state_dict(save_dict["model_weights"])
         self.racing_model.eval()
         self.racing_scaler = save_dict["scaler"]
-        print(f"Time taken to load model: {time.time() - time_before_load_weights:.2f} seconds")
 
         # Setup Mask Generator
-        time_before_mask = time.time()
-        pad_divisor = load_pad_divisor_from_run_dir("mask_generator/run")
-        ENGINE_PATH = "mask_generator/run/model_fp16.engine"
-        self.trt_infer = TRTInference(ENGINE_PATH)
-        print(f"Time taken to load mask generator engine: {time.time() - time_before_mask:.2f} seconds")
+        with TimeLogger("Loading Mask Generator model", logger):
+            pad_divisor = load_pad_divisor_from_run_dir("mask_generator/run")
+            ENGINE_PATH = "mask_generator/run/model_fp16.engine"
+            self.mask_model = TRTWrapper(ENGINE_PATH)
 
-        time_before_mask_transform = time.time()
-        self.mask_transform = KorniaInferTransform(
-            pad_divisor=pad_divisor,
-            device=self.device
-        )
-
-        print(f"Time taken to initialize mask generator transform: {time.time() - time_before_mask_transform:.2f} seconds")
+        with TimeLogger("Initializing mask generator transform", logger):
+            self.mask_transform = KorniaInferTransform(
+                pad_divisor=pad_divisor,
+                device=self.device
+            )
 
         # Racing Simulator data
         self.fov = 120
@@ -109,14 +102,14 @@ class AIController(IController):
         Returns:
             Dictionary containing distances and rays.
         """
-        from mask_generator.utils import infer_mask
+        from mask_generator.utils import get_mask
         from mask_generator.ray_generator import generate_rays, show_rays
 
-        start = time.time()
-        mask = infer_mask(self.trt_infer, self.mask_transform, image)
-        end = time.time()
-        print(f"Total Time for infer mask {end - start:.4f}")
-        distances, ray_endpoints = generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=400)
+        with TimeLogger("Generating mask from image", logger):
+            mask = get_mask(self.mask_model, self.mask_transform, image)
+
+        with TimeLogger("Generating rays from mask", logger):
+            distances, ray_endpoints = generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=400)
 
         if generate_image:
             rays_image = show_rays(mask, ray_endpoints, distances, image, generate_image=True)
@@ -181,21 +174,15 @@ class AIController(IController):
         return data, image_rays
 
     def get_actions(self, data: dict) -> dict:
-        """  """
-        start = time.time()
         input_data = [data[column] for column in self.input_columns]
-        print(f"Input data: {input_data}")
         data_scaled = self.racing_scaler.transform([input_data])
-        print(f"Scaled data: {data_scaled}")
         data_tensor = self.torch.tensor(data_scaled, dtype=self.torch.float32, device=self.device)
 
-        with self.torch.no_grad():
-            prediction = self.racing_model(data_tensor).cpu().numpy().squeeze()
+        with TimeLogger("Running racing model inference", logger):
+            with self.torch.no_grad():
+                prediction = self.racing_model(data_tensor).cpu().numpy().squeeze()
 
-        end = time.time()
-        print(f"Total Time for racing model {end - start:.4f}")
-
-        print(f"Prediction: {prediction}")
+        logger.debug(f"Prediction: {prediction}")
         return {
             "throttle": prediction[0],
             "steering": prediction[1]
@@ -234,7 +221,7 @@ class AIController(IController):
                     frame = in_video.getCvFrame()
                     image_rgb = cvtColor(frame, COLOR_BGR2RGB)
 
-                    data, image_rays = self.get_data(image_rgb, generate_image=self.is_camera_stream)
+                    data, image_rays = self.get_data(image_rgb, generate_image=self.streaming)
 
                     # STREAMING
                     if self.camera_stream is not None:
