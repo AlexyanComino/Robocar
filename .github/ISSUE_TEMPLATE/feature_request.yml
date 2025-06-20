@@ -80,48 +80,48 @@ body:
       label: 👨‍💻 Responsible (Developer)
       description: Who will implement this task?
       options:
-        - @Matyslgr
+        - Matyslgr
         - AmbreCornejo
         - jserygit
         - AlexyanComino
     validations:
       required: true
 
-  # - type: dropdown
-  #   id: accountable
-  #   attributes:
-  #     label: 🧑‍💼 Accountable (Reviewer / Lead)
-  #     description: Who is accountable for approving this task?
-  #     options:
-  #       - @Matyslgr
-  #       - @AmbreCornejo
-  #       - @jserygit
-  #       - @AlexyanComino
-  #   validations:
-  #     required: true
+  - type: dropdown
+    id: accountable
+    attributes:
+      label: 🧑‍💼 Accountable (Reviewer / Lead)
+      description: Who is accountable for approving this task?
+      options:
+        - Matyslgr
+        - AmbreCornejo
+        - jserygit
+        - AlexyanComino
+    validations:
+      required: true
 
-  # - type: dropdown
-  #   id: consulted
-  #   attributes:
-  #     label: 🗣 Consulted (Subject Matter Experts)
-  #     description: Who should be consulted during the implementation?
-  #     options:
-  #       - @Matyslgr
-  #       - @AmbreCornejo
-  #       - @jserygit
-  #       - @AlexyanComino
-  #   validations:
-  #     required: false
+  - type: dropdown
+    id: consulted
+    attributes:
+      label: 🗣 Consulted (Subject Matter Experts)
+      description: Who should be consulted during the implementation?
+      options:
+        - Matyslgr
+        - AmbreCornejo
+        - jserygit
+        - AlexyanComino
+    validations:
+      required: false
 
-  # - type: dropdown
-  #   id: informed
-  #   attributes:
-  #     label: 📢 Informed (Stakeholders to be notified)
-  #     description: Who should be kept informed about progress?
-  #     options:
-  #       - @Matyslgr
-  #       - @AmbreCornejo
-  #       - @jserygit
-  #       - @AlexyanComino
-  #   validations:
-  #     required: false
+  - type: dropdown
+    id: informed
+    attributes:
+      label: 📢 Informed (Stakeholders to be notified)
+      description: Who should be kept informed about progress?
+      options:
+        - Matyslgr
+        - AmbreCornejo
+        - jserygit
+        - AlexyanComino
+    validations:
+      required: false
