@@ -161,7 +161,7 @@ class AIController(IController):
         data_tensor = self.torch.from_numpy(input_array).to(self.device)
 
         with TimeLogger("Running racing model inference", logger):
-            with self.torch.no_grad():
+            with self.torch.inference_mode():
                 prediction = self.racing_model(data_tensor).detach().cpu().numpy()
 
         logger.debug(f"Prediction: {prediction}")
