@@ -4,14 +4,12 @@ title: "[Feature] <Short, descriptive title>"
 labels: [enhancement]
 assignees:
   - your-github-username
-
 body:
   - type: markdown
     attributes:
       value: |
         Thank you for taking the time to propose a new feature!
         Please fill out the form below to help us understand your idea.
-
   - type: textarea
     id: goal
     attributes:
@@ -23,13 +21,11 @@ body:
         - What is the intended outcome of this feature?
         - Who benefits from it and how?
         - What problem does it solve, or what opportunity does it create?
-
-      Example:
+      example:
         "Enable users to export project data in CSV format so they can generate external reports and integrate it into their internal tools."
       value: ""
     validations:
       required: true
-
   - type: textarea
     id: steps
     attributes:
@@ -42,10 +38,8 @@ body:
         - Step 2: Implement the necessary changes in the codebase
         - Step 3: Write integration/unit tests
         - Step 4: Update the documentation to reflect the new feature
-
       validations:
         required: false
-
   - type: textarea
     id: tests
     attributes:
@@ -57,7 +51,6 @@ body:
         - Test Case 3: Describe the third test case
       validations:
         required: true
-
   - type: dropdown
     id: priority
     attributes:
@@ -70,7 +63,6 @@ body:
         - 💤 Low – Nice to have, no immediate need
     validations:
       required: true
-
   - type: input
     id: effort
     attributes:
