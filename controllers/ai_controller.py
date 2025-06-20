@@ -169,7 +169,7 @@ class AIController(IController):
             }
 
         # data is now a list of dicts; stack input vectors for LSTM
-        input_data = [[d[column] for column in self.input_columns] for d in data]
+        input_data = [[d[column] for column in self.input_columns] for d in data if isinstance(d, dict)]
         data_tensor = self.torch.tensor(input_data, dtype=self.torch.float32, device=self.device)
 
         with TimeLogger("Running racing model inference", logger):
