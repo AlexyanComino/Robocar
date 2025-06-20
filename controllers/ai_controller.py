@@ -25,7 +25,7 @@ class AIController(IController):
             from mask_generator.models.utils import load_pad_divisor_from_run_dir
             from mask_generator.trt_wrapper import TRTWrapper
             from mask_generator.transforms import KorniaInferTransform
-            from racing.model import MyModel
+            from racing.model import MyLSTM
 
             import torch
 
@@ -40,7 +40,12 @@ class AIController(IController):
         model_path = "model6eba09feab.pth"
 
         with TimeLogger("Loading Racing Simulator model", logger):
-            self.racing_model = MyModel(input_size=57, hidden_layers=[32, 64, 128, 64, 32], output_size=2).to(self.device)
+            self.racing_model = MyLSTM(
+                input_size=57,  # Number of input features
+                hidden_size=128,  # Size of the hidden layer
+                output_size=2,  # Number of outputs (throttle and steering)
+                num_layers=5  # Number of LSTM layers
+            ).to(self.device)
 
         with TimeLogger(f"Loading racing model weights from {model_path}", logger):
             self.racing_model.load_state_dict(torch.load(model_path, map_location=self.device))
@@ -69,6 +74,7 @@ class AIController(IController):
         self.output_columns = ["input_speed", "input_steering"]
 
         self.previous_data = {}
+        self.data = []
 
         self.camera_stream = None
 
@@ -154,8 +160,16 @@ class AIController(IController):
 
         return data, image_rays
 
-    def get_actions(self, data: dict) -> dict:
-        input_data = [data[column] for column in self.input_columns]
+    def get_actions(self, data: list) -> dict:
+        if len(data) < 5:
+            logger.warning("Insufficient data for prediction, returning default actions.")
+            return {
+                "throttle": 0.0,
+                "steering": 0.0
+            }
+
+        # data is now a list of dicts; stack input vectors for LSTM
+        input_data = [[d[column] for column in self.input_columns] for d in data]
         data_tensor = self.torch.tensor(input_data, dtype=self.torch.float32, device=self.device)
 
         with TimeLogger("Running racing model inference", logger):
@@ -204,6 +218,9 @@ class AIController(IController):
 
                         with TimeLogger("Getting data from image", logger):
                             data, image_rays = self.get_data(image_rgb, generate_image=self.streaming)
+                            self.data.append(data)
+                            if len(self.data) > 5:
+                                self.data.pop(0)
 
                         # STREAMING
                         if self.camera_stream is not None:
