@@ -94,8 +94,6 @@ class TRTWrapper:
 
         # Run inference
         with TimeLogger("Inference TensorRT", logger=logger):
-            stream = torch.cuda.current_stream(device=self.device)
-            self.context.enqueue_v2(self.bindings, stream.cuda_stream)
-            stream.synchronize()
+            self.context.execute_v2(self.bindings)
 
         return output_tensor
