@@ -103,6 +103,7 @@ body:
     attributes:
       label: 🗣 Consulted (Subject Matter Experts)
       description: Who should be consulted during the implementation?
+      multiple: true
       options:
         - Matyslgr
         - AmbreCornejo
@@ -115,6 +116,7 @@ body:
     attributes:
       label: 📢 Informed (Stakeholders to be notified)
       description: Who should be kept informed about progress?
+      multiple: true
       options:
         - Matyslgr
         - AmbreCornejo
