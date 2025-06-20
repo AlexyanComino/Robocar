@@ -54,10 +54,10 @@ body:
       label: 🚩 Priority
       description: How important is this feature?
       options:
-        - 🚨 Critical – Must be addressed immediately for project success
-        - 🔥 High – High value and impact, should be prioritized soon
-        - 📦 Medium – Useful, but not urgent
-        - 💤 Low – Nice to have, no immediate need
+        - 🚨 Critical
+        - 🔥 High
+        - 🛠 Medium
+        - 💤 Low
     validations:
       required: true
   - type: input
