@@ -1,0 +1,96 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 General Discussion
+    url: https://github.com/your-org/your-repo/discussions
+    about: Use GitHub Discussions for questions, ideas, or general conversations.
+  - name: 📄 Contribution Guidelines
+    url: https://github.com/your-org/your-repo/blob/main/CONTRIBUTING.md
+    about: Please review the contribution guidelines before submitting an issue.
+
+issue_templates:
+  - name: 📌 Feature Request
+    description: Suggest a new idea or enhancement.
+    labels: [feature, enhancement]
+    file: feature_request.yaml
+
+  - name: 🐛 Bug Report
+    description: Report a bug or unexpected behavior.
+    labels: [bug]
+    file: bug_report.yaml
+
+  - name: 🚀 Task
+    description: Create a task for a specific implementation.
+    labels: [task]
+    file: task.yaml
+
+  - name: 📖 Documentation Issue
+    description: Suggest changes or improvements to the documentation.
+    labels: [documentation]
+    file: documentation_issue.yaml
+
+name: 🧠 Feature Request
+description: Describe a new command, AI behavior, or enhancement.
+title: "[Feature] "
+labels: [enhancement]
+assignees:
+  - your-github-username
+
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: 🎯 Goal
+      description: What is the purpose of this feature? What will it allow the AI to do?
+      placeholder: "Example: Implement basic survival behavior when low on food."
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: ✅ Technical Steps
+      description: Break down the technical steps required to implement the feature.
+      placeholder: |
+        - Parse inventory response
+        - Detect food quantity
+        - Trigger 'Take food' if necessary
+
+  - type: textarea
+    id: tests
+    attributes:
+      label: 🧪 Test Cases
+      description: Describe the test cases to validate the implementation.
+      placeholder: |
+        - AI detects 0 food and moves
+        - AI prioritizes food over stones
+        - AI dies if food is not found
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 🚩 Priority
+      description: How important is this feature?
+      options:
+        - Critical
+        - High
+        - Medium
+        - Low
+
+  - type: input
+    id: effort
+    attributes:
+      label: ⏱ Estimated Effort (in hours)
+      description: Provide a rough time estimate for this task.
+      placeholder: "e.g. 3h"
+
+  - type: input
+    id: responsible
+    attributes:
+      label: 👨‍💻 Responsible (Developer)
+      description: Who will implement this task?
+      placeholder: "@github-username"
+
+  - type: input
+    id: accountable
+    attributes:
+      label: 🧑‍💼 Accountable (Reviewer / Lead)
+      description: Who is accountable for approving this task?
+      placeholder: "@lead-username"

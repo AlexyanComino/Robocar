@@ -1,0 +1,133 @@
+name: 📌 Feature Request
+description: Suggest a new idea, improvement, or enhancement.
+title: "[Feature] <Short, descriptive title>"
+labels: [feature, enhancement]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to propose a new feature!
+        Please fill out the form below to help us understand your idea.
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: 🎯 Goal
+      description:
+        Clearly state the purpose of this feature and the value it brings.
+        Focus on the desired outcome rather than implementation details.
+      placeholder: |
+        - What is the intended outcome of this feature?
+        - Who benefits from it and how?
+        - What problem does it solve, or what opportunity does it create?
+
+      Example:
+        "Enable users to export project data in CSV format so they can generate external reports and integrate it into their internal tools."
+      value: ""
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: ✅ Technical Steps
+      description:
+        Break down the technical steps required to implement the feature.
+        Focus on logic, modules, services, or components involved. Use bullet points or numbered steps.
+      placeholder: |
+        - Step 1: Identify the modules or files that need to be modified
+        - Step 2: Implement the necessary changes in the codebase
+        - Step 3: Write integration/unit tests
+        - Step 4: Update the documentation to reflect the new feature
+
+      validations:
+        required: false
+
+  - type: textarea
+    id: tests
+    attributes:
+      label: 🧪 Test Cases
+      description: Describe how this feature will be tested. List realistic and meaningful test cases that cover expected behaviors, edge cases, and failure conditions.
+      placeholder: |
+        - Test Case 1: Describe the first test case
+        - Test Case 2: Describe the second test case
+        - Test Case 3: Describe the third test case
+      validations:
+        required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 🚩 Priority
+      description: How important is this feature?
+      options:
+        - 🚨 Critical – Must be addressed immediately for project success
+        - 🔥 High – High value and impact, should be prioritized soon
+        - 📦 Medium – Useful, but not urgent
+        - 💤 Low – Nice to have, no immediate need
+    validations:
+      required: true
+
+  - type: input
+    id: effort
+    attributes:
+      label: ⏱ Estimated Effort (in hours)
+      description: >
+        Provide a rough estimate of the time required to complete this task.
+        Please enter a positive number. You may specify decimals (e.g., 2.5).
+        If unsure, provide a range separated by a dash (e.g., 2-4).
+      placeholder: "e.g. 3 or 2.5 or 1-3"
+    validations:
+      required: false
+      pattern: "^[0-9]+(\\.[0-9]+)?(-[0-9]+(\\.[0-9]+)?)?$"
+      pattern_error_message: "Please enter a positive number or a range (e.g., 3 or 2-4)."
+
+  - type: dropdown
+    id: responsible
+    attributes:
+      label: 👨‍💻 Responsible (Developer)
+      description: Who will implement this task?
+      options:
+        - @Matyslgr
+        - @AmbreCornejo
+        - @jserygit
+        - @AlexyanComino
+
+  - type: dropdown
+    id: accountable
+    attributes:
+      label: 🧑‍💼 Accountable (Reviewer / Lead)
+      description: Who is accountable for approving this task?
+      options:
+        - @Matyslgr
+        - @AmbreCornejo
+        - @jserygit
+        - @AlexyanComino
+
+  - type: dropdown
+    id: consulted
+    attributes:
+      label: 🗣 Consulted (Subject Matter Experts)
+      description: Who should be consulted during the implementation?
+      options:
+        - @Matyslgr
+        - @AmbreCornejo
+        - @jserygit
+        - @AlexyanComino
+      validations:
+        required: false
+
+  - type: dropdown
+    id: informed
+    attributes:
+      label: 📢 Informed (Stakeholders to be notified)
+      description: Who should be kept informed about progress?
+      options:
+        - @Matyslgr
+        - @AmbreCornejo
+        - @jserygit
+        - @AlexyanComino
+      validations:
+        required: false
