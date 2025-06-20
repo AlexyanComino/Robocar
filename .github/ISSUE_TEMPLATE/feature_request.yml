@@ -21,9 +21,6 @@ body:
         - What is the intended outcome of this feature?
         - Who benefits from it and how?
         - What problem does it solve, or what opportunity does it create?
-      # example:
-      #   "Enable users to export project data in CSV format so they can generate external reports and integrate it into their internal tools."
-      # value: ""
     validations:
       required: true
   - type: textarea
@@ -38,8 +35,8 @@ body:
         - Step 2: Implement the necessary changes in the codebase
         - Step 3: Write integration/unit tests
         - Step 4: Update the documentation to reflect the new feature
-      validations:
-        required: false
+    validations:
+      required: false
   - type: textarea
     id: tests
     attributes:
@@ -49,8 +46,8 @@ body:
         - Test Case 1: Describe the first test case
         - Test Case 2: Describe the second test case
         - Test Case 3: Describe the third test case
-      validations:
-        required: true
+    validations:
+      required: true
   - type: dropdown
     id: priority
     attributes:
