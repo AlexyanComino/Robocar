@@ -1,7 +1,7 @@
 name: 📌 Feature Request
 description: Suggest a new idea, improvement, or enhancement.
 title: "[Feature] <Short, descriptive title>"
-labels: [feature, enhancement]
+labels: [enhancement]
 assignees: []
 
 body:
