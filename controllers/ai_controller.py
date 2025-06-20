@@ -37,7 +37,7 @@ class AIController(IController):
         self.streaming = streaming
 
         # Setup Racing Simulator
-        model_path = "model6eba09feab.pth"
+        model_path = "model417b4cf56c.pth"
 
         with TimeLogger("Loading Racing Simulator model", logger):
             self.racing_model = MyModel(input_size=57, hidden_layers=[32, 64, 128, 64, 32], output_size=2).to(self.device)
