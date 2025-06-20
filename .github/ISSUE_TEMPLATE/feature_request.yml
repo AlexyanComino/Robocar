@@ -79,6 +79,7 @@ body:
     attributes:
       label: 👨‍💻 Responsible (Developer)
       description: Who will implement this task?
+      multiple: true
       options:
         - Matyslgr
         - AmbreCornejo
@@ -91,6 +92,7 @@ body:
     attributes:
       label: 🧑‍💼 Accountable (Reviewer / Lead)
       description: Who is accountable for approving this task?
+      multiple: true
       options:
         - Matyslgr
         - AmbreCornejo
