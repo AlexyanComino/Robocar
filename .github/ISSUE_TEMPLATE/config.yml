@@ -1,1 +1,29 @@
-blank_issues_enabled: false
+blank_issues_enabled: falseAdd commentMore actions
+contact_links:
+  - name: 💬 General Discussion
+    url: https://github.com/your-org/your-repo/discussions
+    about: Use GitHub Discussions for questions, ideas, or general conversations.
+  - name: 📄 Contribution Guidelines
+    url: https://github.com/your-org/your-repo/blob/main/CONTRIBUTING.md
+    about: Please review the contribution guidelines before submitting an issue.
+
+issue_templates:
+  - name: 📌 Feature Request
+    description: Suggest a new idea or enhancement.
+    labels: [feature, enhancement]
+    file: feature_request.yaml
+
+  - name: 🐛 Bug Report
+    description: Report a bug or unexpected behavior.
+    labels: [bug]
+    file: bug_report.yaml
+
+  - name: 🚀 Task
+    description: Create a task for a specific implementation.
+    labels: [task]
+    file: task.yaml
+
+  - name: 📖 Documentation Issue
+    description: Suggest changes or improvements to the documentation.
+    labels: [documentation]
+    file: documentation_issue.yaml
