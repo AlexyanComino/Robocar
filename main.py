@@ -38,7 +38,7 @@ def main():
     print(f"Starting main")
     args = parse_args()
 
-    car = Car(port=PORT, power_limit=0.025)
+    car = Car(port=PORT, power_limit=0.03)
     controller_cls = {
         "gamepad": GamepadController,
         "ai": lambda car: AIController(car, streaming=args.stream)
