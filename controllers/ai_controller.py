@@ -47,6 +47,9 @@ class AIController(IController):
 
         self.racing_model.eval()
 
+        example_input = torch.randn(57, device=self.device)
+        self.racing_model = torch.jit.trace(self.racing_model, example_input)
+
         # Setup Mask Generator
         with TimeLogger("Loading Mask Generator model", logger):
             pad_divisor = load_pad_divisor_from_run_dir("mask_generator/run")
@@ -153,17 +156,18 @@ class AIController(IController):
         return data, image_rays
 
     def get_actions(self, data: dict) -> dict:
-        input_data = [data[column] for column in self.input_columns]
-        data_tensor = self.torch.tensor(input_data, dtype=self.torch.float32, device=self.device)
+        # Avoid list + tensor creation overhead
+        input_array = np.fromiter((data[col] for col in self.input_columns), dtype=np.float32)
+        data_tensor = self.torch.from_numpy(input_array).to(self.device)
 
         with TimeLogger("Running racing model inference", logger):
             with self.torch.no_grad():
-                prediction = self.racing_model(data_tensor).cpu().numpy().squeeze()
+                prediction = self.racing_model(data_tensor).detach().cpu().numpy()
 
         logger.debug(f"Prediction: {prediction}")
         return {
-            "throttle": prediction[0],
-            "steering": prediction[1]
+            "throttle": float(prediction[0]),
+            "steering": float(prediction[1])
         }
 
     def run(self):
