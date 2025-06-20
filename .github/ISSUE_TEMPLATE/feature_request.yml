@@ -2,7 +2,8 @@ name: 📌 Feature Request
 description: Suggest a new idea, improvement, or enhancement.
 title: "[Feature] <Short, descriptive title>"
 labels: [enhancement]
-assignees: []
+assignees:
+  - your-github-username
 
 body:
   - type: markdown
@@ -84,50 +85,50 @@ body:
       pattern: "^[0-9]+(\\.[0-9]+)?(-[0-9]+(\\.[0-9]+)?)?$"
       pattern_error_message: "Please enter a positive number or a range (e.g., 3 or 2-4)."
 
-  - type: dropdown
-    id: responsible
-    attributes:
-      label: 👨‍💻 Responsible (Developer)
-      description: Who will implement this task?
-      options:
-        - @Matyslgr
-        - @AmbreCornejo
-        - @jserygit
-        - @AlexyanComino
+  # - type: dropdown
+  #   id: responsible
+  #   attributes:
+  #     label: 👨‍💻 Responsible (Developer)
+  #     description: Who will implement this task?
+  #     options:
+  #       - @Matyslgr
+  #       - @AmbreCornejo
+  #       - @jserygit
+  #       - @AlexyanComino
 
-  - type: dropdown
-    id: accountable
-    attributes:
-      label: 🧑‍💼 Accountable (Reviewer / Lead)
-      description: Who is accountable for approving this task?
-      options:
-        - @Matyslgr
-        - @AmbreCornejo
-        - @jserygit
-        - @AlexyanComino
+  # - type: dropdown
+  #   id: accountable
+  #   attributes:
+  #     label: 🧑‍💼 Accountable (Reviewer / Lead)
+  #     description: Who is accountable for approving this task?
+  #     options:
+  #       - @Matyslgr
+  #       - @AmbreCornejo
+  #       - @jserygit
+  #       - @AlexyanComino
 
-  - type: dropdown
-    id: consulted
-    attributes:
-      label: 🗣 Consulted (Subject Matter Experts)
-      description: Who should be consulted during the implementation?
-      options:
-        - @Matyslgr
-        - @AmbreCornejo
-        - @jserygit
-        - @AlexyanComino
-      validations:
-        required: false
+  # - type: dropdown
+  #   id: consulted
+  #   attributes:
+  #     label: 🗣 Consulted (Subject Matter Experts)
+  #     description: Who should be consulted during the implementation?
+  #     options:
+  #       - @Matyslgr
+  #       - @AmbreCornejo
+  #       - @jserygit
+  #       - @AlexyanComino
+  #     validations:
+  #       required: false
 
-  - type: dropdown
-    id: informed
-    attributes:
-      label: 📢 Informed (Stakeholders to be notified)
-      description: Who should be kept informed about progress?
-      options:
-        - @Matyslgr
-        - @AmbreCornejo
-        - @jserygit
-        - @AlexyanComino
-      validations:
-        required: false
+  # - type: dropdown
+  #   id: informed
+  #   attributes:
+  #     label: 📢 Informed (Stakeholders to be notified)
+  #     description: Who should be kept informed about progress?
+  #     options:
+  #       - @Matyslgr
+  #       - @AmbreCornejo
+  #       - @jserygit
+  #       - @AlexyanComino
+  #     validations:
+  #       required: false
