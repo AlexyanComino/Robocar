@@ -69,7 +69,7 @@ class AIController(IController):
                               'ray_balance'] + [f"ray_{i}" for i in range(1, 51)]
         self.output_columns = ["input_speed", "input_steering"]
 
-        self.init_colomns = ["speed", "steering"] + [f"pos_{coord}" for coord in ['x', 'y', 'z']] \
+        self.init_columns = ["speed", "steering"] + [f"pos_{coord}" for coord in ['x', 'y', 'z']] \
                     + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
 
         self.previous_data = {}
@@ -91,7 +91,7 @@ class AIController(IController):
             mask = get_mask(self.mask_model, self.mask_transform, image)
 
         with TimeLogger("Generating rays from mask", logger):
-            distances, ray_endpoints = generate_rays_vectorized(mask, num_rays=50, fov_degrees=120)
+            distances, ray_endpoints = generate_rays_vectorized(mask, num_rays=self.num_rays, fov_degrees=self.fov)
 
         rays_image = None
         if generate_image:
