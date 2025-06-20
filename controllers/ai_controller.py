@@ -168,14 +168,6 @@ class AIController(IController):
                 "steering": 0.0
             }
 
-        # data is now a list of dicts; stack input vectors for LSTM
-        input_data = []
-
-        for d in data:
-            print(type(d))
-            print(d)
-            input_vector = [d[column] for column in self.input_columns]
-            input_data.append(input_vector)
         input_data = [[d[column] for column in self.input_columns] for d in data if isinstance(d, dict)]
         data_tensor = self.torch.tensor(input_data, dtype=self.torch.float32, device=self.device)
         # Ensure data_tensor has shape (batch_size, sequence_length, input_size)
@@ -237,6 +229,6 @@ class AIController(IController):
                             self.camera_stream.stream_image(image_rays)
 
                         with TimeLogger("Getting actions from data", logger):
-                            actions = self.get_actions(data)
+                            actions = self.get_actions(self.data)
                         with TimeLogger("Setting actions to car", logger):
                             self.car.set_actions(actions)
