@@ -21,9 +21,9 @@ body:
         - What is the intended outcome of this feature?
         - Who benefits from it and how?
         - What problem does it solve, or what opportunity does it create?
-      example:
-        "Enable users to export project data in CSV format so they can generate external reports and integrate it into their internal tools."
-      value: ""
+      # example:
+      #   "Enable users to export project data in CSV format so they can generate external reports and integrate it into their internal tools."
+      # value: ""
     validations:
       required: true
   - type: textarea
