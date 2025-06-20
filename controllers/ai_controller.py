@@ -169,8 +169,18 @@ class AIController(IController):
             }
 
         # data is now a list of dicts; stack input vectors for LSTM
+        input_data = []
+
+        for d in data:
+            print(type(d))
+            print(d)
+            input_vector = [d[column] for column in self.input_columns]
+            input_data.append(input_vector)
         input_data = [[d[column] for column in self.input_columns] for d in data if isinstance(d, dict)]
         data_tensor = self.torch.tensor(input_data, dtype=self.torch.float32, device=self.device)
+        # Ensure data_tensor has shape (batch_size, sequence_length, input_size)
+        if data_tensor.dim() == 2:
+            data_tensor = data_tensor.unsqueeze(0)  # Add batch dimension
 
         with TimeLogger("Running racing model inference", logger):
             with self.torch.no_grad():
