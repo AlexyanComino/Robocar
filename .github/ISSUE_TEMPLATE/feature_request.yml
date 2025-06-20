@@ -80,7 +80,7 @@ body:
       label: 👨‍💻 Responsible (Developer)
       description: Who will implement this task?
       options:
-        - Matyslgr
+        - @Matyslgr
         - AmbreCornejo
         - jserygit
         - AlexyanComino
