@@ -1,17 +1,17 @@
-# blank_issues_enabled: false
-# contact_links:
-#   - name: 💬 General Discussion
-#     url: https://github.com/your-org/your-repo/discussions
-#     about: Use GitHub Discussions for questions, ideas, or general conversations.
-#   - name: 📄 Contribution Guidelines
-#     url: https://github.com/your-org/your-repo/blob/main/CONTRIBUTING.md
-#     about: Please review the contribution guidelines before submitting an issue.
+blank_issues_enabled: true
+contact_links:
+  - name: 💬 General Discussion
+    url: https://github.com/your-org/your-repo/discussions
+    about: Use GitHub Discussions for questions, ideas, or general conversations.
+  - name: 📄 Contribution Guidelines
+    url: https://github.com/your-org/your-repo/blob/main/CONTRIBUTING.md
+    about: Please review the contribution guidelines before submitting an issue.
 
-# issue_templates:
-#   - name: 📌 Feature Request
-#     description: Suggest a new idea or enhancement.
-#     labels: [feature, enhancement]
-#     file: feature_request.yml
+issue_templates:
+  - name: 📌 Feature Request
+    description: Suggest a new idea or enhancement.
+    labels: [feature, enhancement]
+    file: feature_request.yml
 
   # - name: 🐛 Bug Report
   #   description: Report a bug or unexpected behavior.
