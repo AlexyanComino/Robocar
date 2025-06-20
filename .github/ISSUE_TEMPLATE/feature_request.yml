@@ -84,6 +84,8 @@ body:
         - @AmbreCornejo
         - @jserygit
         - @AlexyanComino
+    validations:
+      required: true
 
   - type: dropdown
     id: accountable
@@ -95,6 +97,8 @@ body:
         - @AmbreCornejo
         - @jserygit
         - @AlexyanComino
+    validations:
+      required: true
 
   - type: dropdown
     id: consulted
@@ -106,8 +110,8 @@ body:
         - @AmbreCornejo
         - @jserygit
         - @AlexyanComino
-      validations:
-        required: false
+    validations:
+      required: false
 
   - type: dropdown
     id: informed
@@ -119,5 +123,5 @@ body:
         - @AmbreCornejo
         - @jserygit
         - @AlexyanComino
-      validations:
-        required: false
+    validations:
+      required: false
