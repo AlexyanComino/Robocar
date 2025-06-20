@@ -21,12 +21,12 @@ class AIController(IController):
     """
     def __init__(self, car: Car, streaming: bool = False):
         """ Initialize the AIController with a model. """
-        from mask_generator.models.utils import load_pad_divisor_from_run_dir
-        from mask_generator.trt_wrapper import TRTWrapper
-        from mask_generator.transforms import KorniaInferTransform
-        from racing.model import MyModel
+        with TimeLogger("Import necessary modules", logger):
+            from mask_generator.models.utils import load_pad_divisor_from_run_dir
+            from mask_generator.trt_wrapper import TRTWrapper
+            from mask_generator.transforms import KorniaInferTransform
+            from racing.model import MyModel
 
-        with TimeLogger("Import torch", logger):
             import torch
 
         self.torch = torch # Store torch reference
@@ -87,7 +87,7 @@ class AIController(IController):
             mask = get_mask(self.mask_model, self.mask_transform, image)
 
         with TimeLogger("Generating rays from mask", logger):
-            distances, ray_endpoints = generate_rays_vectorized(mask, num_rays=50, fov_degrees=120, max_distance=400)
+            distances, ray_endpoints = generate_rays_vectorized(mask, num_rays=50, fov_degrees=120)
 
         rays_image = None
         if generate_image:
