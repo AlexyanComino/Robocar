@@ -26,8 +26,7 @@ class AIController(IController):
         from mask_generator.transforms import KorniaInferTransform
         from racing.model import MyModel
 
-        with TimeLogger("Import joblib torch and depthai", logger):
-            import joblib
+        with TimeLogger("Import torch", logger):
             import torch
 
         self.torch = torch # Store torch reference
@@ -38,17 +37,15 @@ class AIController(IController):
         self.streaming = streaming
 
         # Setup Racing Simulator
-        model_path = "model24220ce995.joblib"
+        model_path = "model6eba09feab.pth"
 
         with TimeLogger("Loading Racing Simulator model", logger):
             self.racing_model = MyModel(input_size=57, hidden_layers=[32, 64, 128, 64, 32], output_size=2).to(self.device)
 
         with TimeLogger(f"Loading racing model weights from {model_path}", logger):
-            save_dict = joblib.load(model_path)
-            self.racing_model.load_state_dict(save_dict["model_weights"])
+            self.racing_model.load_state_dict(torch.load(model_path, map_location=self.device))
 
         self.racing_model.eval()
-        self.racing_scaler = save_dict["scaler"]
 
         # Setup Mask Generator
         with TimeLogger("Loading Mask Generator model", logger):
@@ -110,8 +107,7 @@ class AIController(IController):
         rays_data, image_rays = self.get_rays_data(image, generate_image=generate_image)
 
         with TimeLogger("Calculating features", logger):
-            speed = self.car.get_speed()
-            print (f"Speed: {speed}")
+            speed = self.car.get_speed() / 1.15
 
             init_colomns = ["speed", "steering"] + [f"pos_{coord}" for coord in ['x', 'y', 'z']] \
                     + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
@@ -126,7 +122,7 @@ class AIController(IController):
             data["delta_speed"] = data["speed"] - self.previous_data.get("speed", 0.0)
             data["delta_steering"] = data["steering"] - self.previous_data.get("steering", 0.0)
 
-            ray_values = np.array([rays_data[f"ray_{i}"] / 400 * 250 for i in range(50)]) # TEMPORARY, TRYING TO MATCH RACING SIMULATOR RAY VALUES
+            ray_values = np.array([rays_data[f"ray_{i}"] for i in range(50)]) # TEMPORARY, TRYING TO MATCH RACING SIMULATOR RAY VALUES
 
             # Find the closest ray to the car
             closest_ray_index = np.argmin(ray_values)
@@ -160,8 +156,7 @@ class AIController(IController):
 
     def get_actions(self, data: dict) -> dict:
         input_data = [data[column] for column in self.input_columns]
-        data_scaled = self.racing_scaler.transform([input_data])
-        data_tensor = self.torch.tensor(data_scaled, dtype=self.torch.float32, device=self.device)
+        data_tensor = self.torch.tensor(input_data, dtype=self.torch.float32, device=self.device)
 
         with TimeLogger("Running racing model inference", logger):
             with self.torch.no_grad():

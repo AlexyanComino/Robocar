@@ -86,7 +86,7 @@ def generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=None):
 
     return distances, ray_endpoints
 
-def generate_rays_vectorized(mask, num_rays=50, fov_degrees=120, max_distance=None):
+def generate_rays_vectorized(mask, num_rays=50, fov_degrees=120):
     """
     Vectorized version of ray generation for improved performance.
     """
@@ -94,6 +94,8 @@ def generate_rays_vectorized(mask, num_rays=50, fov_degrees=120, max_distance=No
     height, width = mask.shape
     origin_x = width // 2
     origin_y = height - 1
+
+    max_distance = int(np.sqrt(np.power(origin_x, 2) + np.power(height, 2)))
 
     # Prepare angle array
     angles = np.linspace(-fov_degrees / 2, fov_degrees / 2, num_rays)
@@ -133,6 +135,8 @@ def generate_rays_vectorized(mask, num_rays=50, fov_degrees=120, max_distance=No
             dist = max_distance
             end_x = x[-1, i]
             end_y = y[-1, i]
+
+        dist /= max_distance
         distances[f"ray_{i}"] = dist
         ray_endpoints.append((end_x, end_y))
 

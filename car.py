@@ -52,10 +52,9 @@ class Car:
             return self.old_speed
         wheel_radius = 0.005  # Example wheel radius in meters
         wheel_circumference = 2 * 3.1415926535 * wheel_radius
-        speed_m_s = (wheel_circumference * rpm) / 60.0
-        speed_k_h = speed_m_s * 3.6
-        self.old_speed = speed_k_h
-        return speed_k_h
+        speed = (wheel_circumference * rpm) / 60.0
+        self.old_speed = speed
+        return speed
 
     def get_power_limit(self):
         """
