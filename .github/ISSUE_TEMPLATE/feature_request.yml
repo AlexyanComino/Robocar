@@ -1,6 +1,6 @@
 name: 📌 Feature Request
 description: Suggest a new idea, improvement, or enhancement.
-title: "[Feature] <Short, descriptive title>"
+title: "[Feature] : "
 labels: [enhancement]
 assignees:
   - your-github-username
@@ -80,10 +80,8 @@ body:
       label: 👨‍💻 Responsible (Developer)
       description: Who will implement this task?
       options:
-        - Matyslgr
-        - AmbreCornejo
-        - jserygit
-        - AlexyanComino
+        - https://github.com/Matyslgr
+        - https://github.com/AmbreCornejo
     validations:
       required: true
 
@@ -93,10 +91,10 @@ body:
       label: 🧑‍💼 Accountable (Reviewer / Lead)
       description: Who is accountable for approving this task?
       options:
-        - Matyslgr
-        - AmbreCornejo
-        - jserygit
-        - AlexyanComino
+        - https://github.com/Matyslgr
+        - https://github.com/AmbreCornejo
+        - https://github.com/jserygit
+        - https://github.com/AlexyanComino
     validations:
       required: true
 
@@ -106,10 +104,9 @@ body:
       label: 🗣 Consulted (Subject Matter Experts)
       description: Who should be consulted during the implementation?
       options:
-        - Matyslgr
-        - AmbreCornejo
-        - jserygit
-        - AlexyanComino
+        - https://github.com/Matyslgr
+        - https://github.com/AmbreCornejo
+        - https://github.com/AlexyanComino
     validations:
       required: false
 
@@ -119,9 +116,8 @@ body:
       label: 📢 Informed (Stakeholders to be notified)
       description: Who should be kept informed about progress?
       options:
-        - Matyslgr
-        - AmbreCornejo
-        - jserygit
-        - AlexyanComino
+        - https://github.com/Matyslgr
+        - https://github.com/AmbreCornejo
+        - https://github.com/AlexyanComino
     validations:
       required: false
