@@ -107,7 +107,7 @@ class AIController(IController):
         rays_data, image_rays = self.get_rays_data(image, generate_image=generate_image)
 
         with TimeLogger("Calculating features", logger):
-            speed = self.car.get_speed() / 1.15
+            speed = self.car.get_speed() / 1.55
 
             init_colomns = ["speed", "steering"] + [f"pos_{coord}" for coord in ['x', 'y', 'z']] \
                     + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
