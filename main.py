@@ -31,6 +31,9 @@ def parse_args():
         help="Enable camera stream for AI controller."
     )
 
+    parser.add_argument("--width", type=int, default=768, help="Width of the input image.")
+    parser.add_argument("--height", type=int, default=256, help="Height of the input image.")
+
     return parser.parse_args()
 
 
@@ -41,7 +44,7 @@ def main():
     car = Car(port=PORT, power_limit=0.03)
     controller_cls = {
         "gamepad": GamepadController,
-        "ai": lambda car: AIController(car, streaming=args.stream)
+        "ai": lambda car: AIController(car, streaming=args.stream, width=args.width, height=args.height)
     }[args.controller]
 
     controller = controller_cls(car)

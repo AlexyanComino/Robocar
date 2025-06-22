@@ -6,13 +6,19 @@
 ##
 
 import depthai as dai
+from logger import setup_logger, TimeLogger
+
+logger = setup_logger(__name__)
 
 class Camera:
-    def __init__(self, camera_index=0):
+    def __init__(self, camera_index=0, width=768, height=256):
         self.camera_index = camera_index
+        self.width = width
+        self.height = height
         self.cam_device = None
         self.video_queue = None
         self.pipeline = self.init_camera()
+        logger.info(f"Camera initialized with index {self.camera_index}, width {self.width}, height {self.height}")
 
     def __del__(self):
         if self.video_queue:
@@ -28,10 +34,10 @@ class Camera:
         self.__del__()
 
 
-    def init_camera(self, width=384, height=128):
+    def init_camera(self):
         pipeline = dai.Pipeline()
         cam_color = pipeline.createColorCamera()
-        cam_color.setPreviewSize(width, height)
+        cam_color.setPreviewSize(self.width, self.height)
         cam_color.setInterleaved(False)
         cam_color.setColorOrder(dai.ColorCameraProperties.ColorOrder.BGR)
 

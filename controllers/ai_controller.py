@@ -19,7 +19,7 @@ class AIController(IController):
     Controller for the AI model in the Robocar project.
     This controller handles the interaction with the AI model.
     """
-    def __init__(self, car: Car, streaming: bool = False):
+    def __init__(self, car: Car, streaming: bool = False, width: int = 768, height: int = 256):
         """ Initialize the AIController with a model. """
         with TimeLogger("Import necessary modules", logger):
             from mask_generator.models.utils import load_pad_divisor_from_run_dir
@@ -35,6 +35,8 @@ class AIController(IController):
         logger.info(f"Using device: {self.device}")
         self.car = car
         self.streaming = streaming
+        self.width = width
+        self.height = height
 
         # Setup Racing Simulator
         model_path = "model6eba09feab.pth"
@@ -59,6 +61,7 @@ class AIController(IController):
         with TimeLogger("Initializing mask generator transform", logger):
             self.mask_transform = KorniaInferTransform(
                 pad_divisor=pad_divisor,
+                target_height=self.height,
                 device=self.device
             )
 
@@ -181,7 +184,7 @@ class AIController(IController):
         from collections import deque
         from cv2 import cvtColor, COLOR_BGR2RGB
 
-        with Camera() as camera:
+        with Camera(width=self.width, height=self.height) as camera:
             fps_history = deque(maxlen=30)
 
             prev_time = time.time()
