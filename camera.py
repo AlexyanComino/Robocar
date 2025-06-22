@@ -45,7 +45,7 @@ class Camera:
         self.__del__()
 
 
-    def init_camera(self, width=783, height=256):
+    def init_camera(self, width=768, height=256):
         print("Résolutions supportées par la caméra :")
         for res in dai.ColorCameraProperties.SensorResolution.__members__.values():
             name = res.name
