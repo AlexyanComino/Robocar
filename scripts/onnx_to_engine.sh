@@ -11,7 +11,7 @@ if [[ ! -f "$ONNX_PATH" ]]; then
 fi
 
 HEIGHT=256
-WIDTH=783
+WIDTH=768
 
 ENGINE_PATH="${ONNX_PATH%.onnx}_fp16_${HEIGHT}x${WIDTH}.engine"
 
