@@ -28,7 +28,11 @@ class Camera:
         self.__del__()
 
 
-    def init_camera(self, width=448, height=256):
+    def init_camera(self, width=783, height=256):
+        print("Résolutions supportées par la caméra :")
+        for res in dai.ColorCameraProperties.SensorResolution:
+            print("-", res.name)
+
         pipeline = dai.Pipeline()
         cam_color = pipeline.createColorCamera()
         cam_color.setPreviewSize(width, height)
