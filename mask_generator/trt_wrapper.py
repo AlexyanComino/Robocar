@@ -94,6 +94,8 @@ class TRTWrapper:
 
         # Run inference
         with TimeLogger("Inference TensorRT", logger=logger):
-            self.context.execute_v2(self.bindings)
+            stream = cuda.Stream()
+            self.context.execute_async_v2(self.bindings, stream.handle)
+            stream.synchronize()
 
         return output_tensor

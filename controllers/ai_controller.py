@@ -47,6 +47,9 @@ class AIController(IController):
 
         self.racing_model.eval()
 
+        example_input = torch.randn(57, device=self.device)
+        self.racing_model = torch.jit.trace(self.racing_model, example_input)
+
         # Setup Mask Generator
         with TimeLogger("Loading Mask Generator model", logger):
             pad_divisor = load_pad_divisor_from_run_dir("mask_generator/run")
@@ -63,10 +66,14 @@ class AIController(IController):
         self.fov = 120
         self.max_rays = 50
         self.num_rays = self.max_rays
+
         self.input_columns = ['speed', 'delta_speed', 'angle_closest_ray',
                               'avg_ray_left', 'avg_ray_center', 'avg_ray_right',
                               'ray_balance'] + [f"ray_{i}" for i in range(1, 51)]
         self.output_columns = ["input_speed", "input_steering"]
+
+        self.init_columns = ["speed", "steering"] + [f"pos_{coord}" for coord in ['x', 'y', 'z']] \
+                    + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
 
         self.previous_data = {}
 
@@ -87,7 +94,7 @@ class AIController(IController):
             mask = get_mask(self.mask_model, self.mask_transform, image)
 
         with TimeLogger("Generating rays from mask", logger):
-            distances, ray_endpoints = generate_rays_vectorized(mask, num_rays=50, fov_degrees=120)
+            distances, ray_endpoints = generate_rays_vectorized(mask, num_rays=self.num_rays, fov_degrees=self.fov)
 
         rays_image = None
         if generate_image:
@@ -109,63 +116,58 @@ class AIController(IController):
         with TimeLogger("Calculating features", logger):
             speed = self.car.get_speed() / 1.55
 
-            init_colomns = ["speed", "steering"] + [f"pos_{coord}" for coord in ['x', 'y', 'z']] \
-                    + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
+            data = dict.fromkeys(self.init_columns, 0.0)
 
-            data = {column: 0.0 for column in init_colomns}
+            ray_values = np.fromiter((rays_data[f"ray_{i}"] for i in range(self.num_rays)), dtype=float)
 
             for i in range(self.num_rays):
-                data[f"ray_{i+1}"] = float(rays_data[f"ray_{i}"])
+                data[f"ray_{i+1}"] = ray_values[i]
 
+
+            # Basic data
             data["speed"] = speed
-
-            data["delta_speed"] = data["speed"] - self.previous_data.get("speed", 0.0)
+            data["delta_speed"] = speed - self.previous_data.get("speed", 0.0)
             data["delta_steering"] = data["steering"] - self.previous_data.get("steering", 0.0)
 
-            ray_values = np.array([rays_data[f"ray_{i}"] for i in range(50)]) # TEMPORARY, TRYING TO MATCH RACING SIMULATOR RAY VALUES
-
-            # Find the closest ray to the car
-            closest_ray_index = np.argmin(ray_values)
+            # Closest ray and angle
+            closest_ray_index = ray_values.argmin()
             angle_step = self.fov / (self.num_rays - 1)
-            data["angle_closest_ray"] = -(self.fov / 2) + closest_ray_index * angle_step
+            data["angle_closest_ray"] = -self.fov / 2 + closest_ray_index * angle_step
 
-            # Calculate the average, standard deviation, min, and max of the ray values
-            data["avg_ray"] = np.mean(ray_values)
-            data["std_ray"] = np.std(ray_values)
-            data["min_ray"] = np.min(ray_values)
-            data["max_ray"] = np.max(ray_values)
+            # Basic stats
+            data["avg_ray"] = ray_values.mean()
+            data["std_ray"] = ray_values.std()
+            data["min_ray"] = ray_values.min()
+            data["max_ray"] = ray_values.max()
 
-            left_indices = range(self.num_rays // 3)
-            center_indices = range(self.num_rays // 3, 2 * self.num_rays // 3)
-            right_indices = range(2 * self.num_rays // 3, self.num_rays)
-
-            data["avg_ray_left"] = np.mean(ray_values[list(left_indices)])
-            data["avg_ray_center"] = np.mean(ray_values[list(center_indices)])
-            data["avg_ray_right"] = np.mean(ray_values[list(right_indices)])
-
+            n = self.num_rays
+            third = n // 3
+            data["avg_ray_left"] = ray_values[:third].mean()
+            data["avg_ray_center"] = ray_values[third:2*third].mean()
+            data["avg_ray_right"] = ray_values[2*third:].mean()
             data["ray_balance"] = data["avg_ray_right"] - data["avg_ray_left"]
 
-            # Acceleration calculation
-            prev_delta_speed = self.previous_data.get("delta_speed", 0.0)
-            data["acceleration"] = data["delta_speed"] - prev_delta_speed
+            # Acceleration
+            data["acceleration"] = data["delta_speed"] - self.previous_data.get("delta_speed", 0.0)
 
-            # Update previous data
+            # Update state
             self.previous_data = data.copy()
 
         return data, image_rays
 
     def get_actions(self, data: dict) -> dict:
-        input_data = [data[column] for column in self.input_columns]
-        data_tensor = self.torch.tensor(input_data, dtype=self.torch.float32, device=self.device)
+        # Avoid list + tensor creation overhead
+        input_array = np.fromiter((data[col] for col in self.input_columns), dtype=np.float32)
+        data_tensor = self.torch.from_numpy(input_array).to(self.device)
 
         with TimeLogger("Running racing model inference", logger):
-            with self.torch.no_grad():
-                prediction = self.racing_model(data_tensor).cpu().numpy().squeeze()
+            with self.torch.inference_mode():
+                prediction = self.racing_model(data_tensor).detach().cpu().numpy()
 
         logger.debug(f"Prediction: {prediction}")
         return {
-            "throttle": prediction[0],
-            "steering": prediction[1]
+            "throttle": float(prediction[0]),
+            "steering": float(prediction[1])
         }
 
     def run(self):
