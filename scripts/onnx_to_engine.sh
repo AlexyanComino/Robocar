@@ -10,15 +10,18 @@ if [[ ! -f "$ONNX_PATH" ]]; then
     exit 1
 fi
 
-ENGINE_PATH="${ONNX_PATH%.onnx}_fp16.engine"
+HEIGHT=256
+WIDTH=783
+
+ENGINE_PATH="${ONNX_PATH%.onnx}_fp16_${HEIGHT}x${WIDTH}.engine"
 
 CMD=(
     trtexec
     --onnx="$ONNX_PATH"
     --saveEngine="$ENGINE_PATH"
-    --minShapes=input:1x3x256x448
-    --optShapes=input:1x3x256x448
-    --maxShapes=input:1x3x256x448
+    --minShapes=input:1x3x${HEIGHT}x${WIDTH}
+    --optShapes=input:1x3x${HEIGHT}x${WIDTH}
+    --maxShapes=input:1x3x${HEIGHT}x${WIDTH}
     --explicitBatch
     --buildOnly
     --workspace=1024
