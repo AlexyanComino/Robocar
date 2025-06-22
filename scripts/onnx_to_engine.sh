@@ -28,7 +28,7 @@ fi
 ENGINE_PATH="${ONNX_PATH%.onnx}_fp16_${HEIGHT}x${WIDTH}.engine"
 
 # Check if the engine already exists
-if [[ ! -f "$ENGINE_PATH"]]; then
+if [[ -f "$ENGINE_PATH" ]]; then
     read -p "⚠️ Engine '$ENGINE_PATH' already exists. Overwrite? (y/N): " confirm
     case "$confirm" in
         [yY][eE][sS]|[yY])
