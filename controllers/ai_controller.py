@@ -123,7 +123,6 @@ class AIController(IController):
             for i in range(self.num_rays):
                 data[f"ray_{i+1}"] = ray_values[i]
 
-
             # Basic data
             data["speed"] = speed
             data["delta_speed"] = speed - self.previous_data.get("speed", 0.0)

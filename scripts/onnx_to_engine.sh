@@ -1,8 +1,17 @@
 #!/bin/bash
 
-# Usage: ./onnx_to_engine.sh model.onnx
+# Usage: ./onnx_to_engine.sh model.onnx WIDTH HEIGHT
+
+set -e
+
+if [[ $# -ne 3 ]]; then
+    echo "Usage: $0 <model.onnx> <WIDTH> <HEIGHT>"
+    exit 1
+fi
 
 ONNX_PATH="$1"
+WIDTH="$2"
+HEIGHT="$3"
 
 # Check ONNX file
 if [[ ! -f "$ONNX_PATH" ]]; then
@@ -10,10 +19,27 @@ if [[ ! -f "$ONNX_PATH" ]]; then
     exit 1
 fi
 
-HEIGHT=256
-WIDTH=768
+# Check if WIDTH and HEIGHT are integers
+if ! [[ "$WIDTH" =~ ^[0-9]+$ ]] || ! [[ "$HEIGHT" =~ ^[0-9]+$ ]]; then
+    echo "❌ WIDTH and HEIGHT must be positive integers."
+    exit 1
+fi
 
 ENGINE_PATH="${ONNX_PATH%.onnx}_fp16_${HEIGHT}x${WIDTH}.engine"
+
+# Check if the engine already exists
+if [[ ! -f "$ENGINE_PATH"]]; then
+    read -p "⚠️ Engine '$ENGINE_PATH' already exists. Overwrite? (y/N): " confirm
+    case "$confirm" in
+        [yY][eE][sS]|[yY])
+            echo "🔁 Overwriting existing engine..."
+            ;;
+        *)
+            echo "❌ Aborted."
+            exit 1
+            ;;
+    esac
+fi
 
 CMD=(
     trtexec
