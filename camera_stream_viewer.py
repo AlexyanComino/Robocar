@@ -5,15 +5,17 @@
 ## stream
 ##
 
+import argparse
 import cv2
 import socket
 import pickle
 import struct
 
 class CameraStreamViewer:
-    def __init__(self, host='172.20.10.14', port=8000):
+    def __init__(self, host='172.20.10.14', port=8000, scale=1.0):
         self.host = host
         self.port = port
+        self.scale = scale
         self.client_socket = None
         self.data = b""
         self.payload_size = struct.calcsize(">L")
@@ -55,6 +57,10 @@ class CameraStreamViewer:
             self.data = self.data[msg_size:]
 
             frame = pickle.loads(frame_data)
+
+            if self.scale != 1.0:
+                frame = cv2.resize(frame, (0, 0), fx=self.scale, fy=self.scale)
+
             cv2.imshow("Camera Feed", frame)
             if cv2.waitKey(1) == ord('q'):
                 break
@@ -64,7 +70,14 @@ class CameraStreamViewer:
             self.stream()
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Camera Stream Viewer")
+    parser.add_argument('--scale', type=float, default=1.0, help="Scale factor for the video feed")
+    return parser.parse_args()
+
 def main():
+    args = parse_args()
+
     ip_matys = "192.168.178.192"
     ip_alex = "172.20.10.14"
     ip_ambre = "172.20.10.2"
@@ -74,7 +87,7 @@ def main():
     for ip in ips:
         try:
             print(f"Trying to connect to {ip}...")
-            with CameraStreamViewer(host=ip, port=8000) as viewer:
+            with CameraStreamViewer(host=ip, port=8000, scale=args.scale) as viewer:
                 print(f"Successfully connected to {ip} and streaming.")
                 viewer.stream()
             break
