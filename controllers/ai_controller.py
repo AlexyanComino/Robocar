@@ -211,7 +211,8 @@ class AIController(IController):
 
                         # STREAMING
                         if self.camera_stream is not None:
-                            self.camera_stream.stream_image(image_rays)
+                            with TimeLogger("Streaming image", logger):
+                                self.camera_stream.stream_image(image_rays)
 
                         with TimeLogger("Getting actions from data", logger):
                             actions = self.get_actions(data)
