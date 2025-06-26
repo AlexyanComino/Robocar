@@ -54,8 +54,9 @@ class AIController(IController):
 
         # Setup Mask Generator
         with TimeLogger("Loading Mask Generator model", logger):
-            pad_divisor = load_pad_divisor_from_run_dir("mask_generator/run")
-            engine_path = f"mask_generator/run/model_fp16_{self.height}x{self.width}.engine"
+            run_dir = "mask_generator/20250626_012301_748adaf2f4"
+            pad_divisor = load_pad_divisor_from_run_dir(run_dir)
+            engine_path = f"{run_dir}/model_fp16_{self.height}x{self.width}.engine"
             logger.info(f"Using Mask Generator engine: {engine_path}")
             self.mask_model = TRTWrapper(engine_path, device=self.device)
 
