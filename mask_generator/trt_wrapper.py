@@ -74,7 +74,7 @@ class TRTWrapper:
                 "TensorRT does not support dynamic shapes in this wrapper."
             )
         self.input_static_shape = tuple(raw_shape)
-        logger.info(f"✅ Input shape statique détecté : {self.input_static_shape}")
+        logger.info(f"✅ Static input shape : {self.input_static_shape}")
 
     def __call__(self, input_tensor: torch.Tensor) -> torch.Tensor:
         return self.forward(input_tensor)

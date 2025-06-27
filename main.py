@@ -11,6 +11,9 @@ import argparse
 from controllers.gamepad_controller import GamepadController
 from controllers.ai_controller import AIController
 from car import Car
+from logger import setup_logger
+
+logger = setup_logger(__name__)
 
 PORT = "/dev/ttyACM0"
 
@@ -25,7 +28,7 @@ def parse_args():
     ai_parser.add_argument(
         "--mask-model",
         type=str,
-        default="mask_generator/20250626_200538_96718eef57/",
+        default="mask_generator/20250626_200538_96718eef57",
         help="Path to the mask generator model directory."
     )
     ai_parser.add_argument(
@@ -44,7 +47,7 @@ def parse_args():
 
 
 def main():
-    print(f"Starting main")
+    logger.info("Starting Robocar main script")
     args = parse_args()
 
     car = Car(port=PORT, power_limit=0.03)
@@ -55,7 +58,7 @@ def main():
 
     controller = controller_cls(car)
 
-    print(f"Using {args.controller} controller.")
+    logger.info(f"Using {args.controller} controller.")
     controller.run()
 
 if __name__ == "__main__":
