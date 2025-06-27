@@ -24,7 +24,7 @@ def parse_args():
     ai_parser.add_argument(
         "--mask-model",
         type=str,
-        required=True,
+        default="mask_generator/20250626_200538_96718eef57/",
         help="Path to the mask generator model directory."
     )
     ai_parser.add_argument(
