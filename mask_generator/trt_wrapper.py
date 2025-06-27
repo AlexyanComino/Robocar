@@ -12,6 +12,7 @@ import tensorrt as trt
 import pycuda.driver as cuda
 import pycuda.autoinit
 import numpy as np
+from typing import Tuple, List, Dict
 
 from logger import setup_logger, TimeLogger
 
@@ -78,7 +79,7 @@ class TRTWrapper:
     def __call__(self, input_tensor: torch.Tensor) -> torch.Tensor:
         return self.forward(input_tensor)
 
-    def get_input_shape(self) -> tuple:
+    def get_input_shape(self) -> Tuple[int, ...]:
         """
         Returns the static input shape of the TensorRT engine.
         """

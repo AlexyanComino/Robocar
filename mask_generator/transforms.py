@@ -8,13 +8,19 @@
 import numpy as np
 import kornia.geometry.transform as kt
 import torch
+from scipy import ndimage
 import torch.nn.functional as F
 from abc import ABC, abstractmethod
+from typing import Tuple
+from logger import setup_logger
 
 class BaseTransform(ABC):
     @abstractmethod
     def __call__(self, image: np.ndarray, mask: np.ndarray = None):
         raise NotImplementedError("Subclasses should implement this method.")
+
+
+logger = setup_logger(__name__)
 
 class AspectAwareCropper:
     def __init__(self, target_ratio: float, crop_strategy: str = "adaptive", debug: bool = False):
@@ -99,7 +105,7 @@ class AspectAwareCropper:
         plt.show()
 
 class KorniaInferTransform(BaseTransform):
-    def __init__(self, pad_divisor: int, image_size: tuple[int, int], device: str = 'cpu', debug: bool = False):
+    def __init__(self, pad_divisor: int, image_size: Tuple[int, int], device: str = 'cpu', debug: bool = False):
         self.pad_divisor = pad_divisor
         self.image_size = image_size
         self.target_ratio = image_size[1] / image_size[0] # width / height
