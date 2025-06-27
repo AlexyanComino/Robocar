@@ -119,7 +119,9 @@ class AIController(IController):
 
         with TimeLogger("Calculating features", logger):
             # For Power limit 0.03 is 1.55
-            speed = self.car.get_speed() / 1.55
+            # For Power limit 0.02 is 0.71
+            speed = self.car.get_speed() / 0.71
+            speed = max(0.0, min(speed, 1.0))  # Clamp speed to [0, 1]
 
             data = dict.fromkeys(self.init_columns, 0.0)
 
