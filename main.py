@@ -5,7 +5,8 @@
 ## main
 ##
 
-from argparse import ArgumentParser
+import sys
+import argparse
 
 from controllers.gamepad_controller import GamepadController
 from controllers.ai_controller import AIController
@@ -14,9 +15,9 @@ from car import Car
 PORT = "/dev/ttyACM0"
 
 def parse_args():
-    parser = ArgumentParser(description="Robocar Project")
+    parser = argparse.ArgumentParser(description="Robocar Project")
 
-    subparsers = parser.add_subparsers(dest="controller", required=True, help="Controller type")
+    subparsers = parser.add_subparsers(dest="controller", help="Controller type")
 
     gamepad_parser = subparsers.add_parser("gamepad", help="Control the car with a gamepad")
 
@@ -33,7 +34,13 @@ def parse_args():
         help="Enable camera stream for AI controller."
     )
 
-    return parser.parse_args()
+    args = parser.parse_args()
+
+    if not args.controller:
+        parser.print_help()
+        sys.exit(1)
+
+    return args
 
 
 def main():
