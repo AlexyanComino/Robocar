@@ -83,3 +83,4 @@ class GamepadController(IController):
             if updated:
                 actions = self.get_actions()
                 self.car.set_actions(actions)
+                print(f"Speed = {self.car.get_speed():.2f}")

@@ -118,6 +118,7 @@ class AIController(IController):
         rays_data, image_rays = self.get_rays_data(image, generate_image=generate_image)
 
         with TimeLogger("Calculating features", logger):
+            # For Power limit 0.03 is 1.55
             speed = self.car.get_speed() / 1.55
 
             data = dict.fromkeys(self.init_columns, 0.0)
