@@ -185,9 +185,7 @@ class AIController(IController):
         from collections import deque
         from cv2 import cvtColor, COLOR_BGR2RGB
 
-        _, _, height, width = self.mask_input_shape
-
-        with Camera(width=width, height=height) as camera:
+        with Camera(width=self.width, height=self.height) as camera:
             fps_history = deque(maxlen=30)
 
             prev_time = time.time()
