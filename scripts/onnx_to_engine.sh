@@ -5,7 +5,7 @@
 set -e
 
 if [[ $# -ne 3 ]]; then
-    echo "Usage: $0 <model.onnx> <WIDTH> <HEIGHT>"
+    echo "Usage: $0 <model.onnx>"
     exit 1
 fi
 
