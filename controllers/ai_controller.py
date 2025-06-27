@@ -56,13 +56,13 @@ class AIController(IController):
             engine_path = f"{mask_model_dir}/model_fp16.engine"
             logger.info(f"Using Mask Generator engine: {engine_path}")
             self.mask_model = TRTWrapper(engine_path, device=self.device)
-            self.mask_input_shape = self.mask_model.get_input_shape()
-            logger.info(f"Mask Generator input shape: {self.mask_input_shape}")
+            self.height, self.width = self.mask_model.get_input_shape()[2:]
+            logger.info(f"Mask Generator width: {self.width}, height: {self.height}")
 
         with TimeLogger("Initializing mask generator transform", logger):
             self.mask_transform = KorniaInferTransform(
                 pad_divisor=pad_divisor,
-                image_size=self.mask_input_shape[2:],
+                image_size=(self.height, self.width),
                 device=self.device
             )
 
