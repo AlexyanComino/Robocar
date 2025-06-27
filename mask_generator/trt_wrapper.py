@@ -66,12 +66,23 @@ class TRTWrapper:
         logger.info(f"Input : {self.input_name} (index {self.input_index})")
         logger.info(f"Output : {self.output_name} (index {self.output_index})")
 
-        # Dynamic shape support
-        self.input_shape = self.engine.get_binding_shape(self.input_index)
-        logger.info(f"Input shape dynamique : {self.input_shape}")
+        raw_shape = self.engine.get_binding_shape(self.input_index)
+        if -1 in raw_shape:
+            raise ValueError(
+                f"Input shape contains dynamic dimensions: {raw_shape}. "
+                "TensorRT does not support dynamic shapes in this wrapper."
+            )
+        self.input_static_shape = tuple(raw_shape)
+        logger.info(f"✅ Input shape statique détecté : {self.input_static_shape}")
 
     def __call__(self, input_tensor: torch.Tensor) -> torch.Tensor:
         return self.forward(input_tensor)
+
+    def get_input_shape(self) -> tuple:
+        """
+        Returns the static input shape of the TensorRT engine.
+        """
+        return self.input_static_shape
 
     def forward(self, input_tensor: torch.Tensor) -> torch.Tensor:
         assert input_tensor.is_cuda, "Input tensor must be on CUDA device"

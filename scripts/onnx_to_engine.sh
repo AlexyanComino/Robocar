@@ -10,8 +10,6 @@ if [[ $# -ne 3 ]]; then
 fi
 
 ONNX_PATH="$1"
-WIDTH="$2"
-HEIGHT="$3"
 
 # Check ONNX file
 if [[ ! -f "$ONNX_PATH" ]]; then
@@ -19,13 +17,7 @@ if [[ ! -f "$ONNX_PATH" ]]; then
     exit 1
 fi
 
-# Check if WIDTH and HEIGHT are integers
-if ! [[ "$WIDTH" =~ ^[0-9]+$ ]] || ! [[ "$HEIGHT" =~ ^[0-9]+$ ]]; then
-    echo "❌ WIDTH and HEIGHT must be positive integers."
-    exit 1
-fi
-
-ENGINE_PATH="${ONNX_PATH%.onnx}_fp16_${HEIGHT}x${WIDTH}.engine"
+ENGINE_PATH="${ONNX_PATH%.onnx}_fp16.engine"
 
 # Check if the engine already exists
 if [[ -f "$ENGINE_PATH" ]]; then
@@ -45,9 +37,6 @@ CMD=(
     trtexec
     --onnx="$ONNX_PATH"
     --saveEngine="$ENGINE_PATH"
-    --minShapes=input:1x3x${HEIGHT}x${WIDTH}
-    --optShapes=input:1x3x${HEIGHT}x${WIDTH}
-    --maxShapes=input:1x3x${HEIGHT}x${WIDTH}
     --explicitBatch
     --buildOnly
     --workspace=1024
@@ -60,7 +49,7 @@ echo "🔧 Building engine..."
 
 # Check result
 if [[ $? -eq 0 ]]; then
-    echo "✅ Engine saved to $ENGINE_PATH"
+    echo "✅ Static Engine saved to $ENGINE_PATH"
 else
     echo "❌ Failed to build engine."
     exit 1

@@ -19,7 +19,7 @@ class AIController(IController):
     Controller for the AI model in the Robocar project.
     This controller handles the interaction with the AI model.
     """
-    def __init__(self, car: Car, streaming: bool = False, width: int = 768, height: int = 256):
+    def __init__(self, car: Car, mask_model_dir: str, streaming: bool = False):
         """ Initialize the AIController with a model. """
         with TimeLogger("Import necessary modules", logger):
             from mask_generator.models.utils import load_pad_divisor_from_run_dir
@@ -35,8 +35,6 @@ class AIController(IController):
         logger.info(f"Using device: {self.device}")
         self.car = car
         self.streaming = streaming
-        self.width = width
-        self.height = height
 
         # Setup Racing Simulator
         model_path = "model6eba09feab.pth"
@@ -54,16 +52,17 @@ class AIController(IController):
 
         # Setup Mask Generator
         with TimeLogger("Loading Mask Generator model", logger):
-            run_dir = "mask_generator/20250626_012301_748adaf2f4"
-            pad_divisor = load_pad_divisor_from_run_dir(run_dir)
-            engine_path = f"{run_dir}/model_fp16_{self.height}x{self.width}.engine"
+            pad_divisor = load_pad_divisor_from_run_dir(mask_model_dir)
+            engine_path = f"{mask_model_dir}/model_fp16.engine"
             logger.info(f"Using Mask Generator engine: {engine_path}")
             self.mask_model = TRTWrapper(engine_path, device=self.device)
+            self.mask_input_shape = self.mask_model.get_input_shape()
+            logger.info(f"Mask Generator input shape: {self.mask_input_shape}")
 
         with TimeLogger("Initializing mask generator transform", logger):
             self.mask_transform = KorniaInferTransform(
                 pad_divisor=pad_divisor,
-                target_height=self.height,
+                image_size=self.mask_input_shape[2:],
                 device=self.device
             )
 
@@ -186,7 +185,9 @@ class AIController(IController):
         from collections import deque
         from cv2 import cvtColor, COLOR_BGR2RGB
 
-        with Camera(width=self.width, height=self.height) as camera:
+        _, _, height, width = self.mask_input_shape
+
+        with Camera(width=width, height=height) as camera:
             fps_history = deque(maxlen=30)
 
             prev_time = time.time()

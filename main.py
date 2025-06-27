@@ -16,23 +16,22 @@ PORT = "/dev/ttyACM0"
 def parse_args():
     parser = ArgumentParser(description="Robocar Project")
 
-    # Controller (default is gamepad)
-    parser.add_argument(
-        "--controller",
-        choices=["gamepad", "ai"],
-        default="gamepad",
-        help="Select the controller type: 'gamepad' or 'ai'. Default is 'gamepad'."
-    )
+    subparsers = parser.add_subparsers(dest="controller", required=True, help="Controller type")
 
-    # Camera stream option
-    parser.add_argument(
+    gamepad_parser = subparsers.add_parser("gamepad", help="Control the car with a gamepad")
+
+    ai_parser = subparsers.add_parser("ai", help="Control the car with AI model")
+    ai_parser.add_argument(
+        "--mask-model",
+        type=str,
+        required=True,
+        help="Path to the mask generator model directory."
+    )
+    ai_parser.add_argument(
         "--stream",
         action="store_true",
         help="Enable camera stream for AI controller."
     )
-
-    parser.add_argument("--width", type=int, default=768, help="Width of the input image.")
-    parser.add_argument("--height", type=int, default=256, help="Height of the input image.")
 
     return parser.parse_args()
 
@@ -44,7 +43,7 @@ def main():
     car = Car(port=PORT, power_limit=0.03)
     controller_cls = {
         "gamepad": GamepadController,
-        "ai": lambda car: AIController(car, streaming=args.stream, width=args.width, height=args.height)
+        "ai": lambda car: AIController(car, mask_model_dir=args.mask_model, streaming=args.stream)
     }[args.controller]
 
     controller = controller_cls(car)
