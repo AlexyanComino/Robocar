@@ -33,7 +33,7 @@ def generate_rays(mask, num_rays=50, fov_degrees=160):
     angle_step = math.radians(-fov_degrees / (num_rays - 1))
     step_size = 1
 
-    distances = []
+    distances = {}
     hits = []
 
     for k in range(num_rays):
@@ -55,7 +55,7 @@ def generate_rays(mask, num_rays=50, fov_degrees=160):
             y -= step_size * math.sin(angle)
             hit_dist += 1
 
-        distances.append(hit_dist / max_distance if max_distance != 0 else 1.0)
+        distances[f"ray_{k}"] = hit_dist / max_distance if max_distance != 0 else 1.0
         hits.append((int(x), int(y)))
 
     return distances, hits

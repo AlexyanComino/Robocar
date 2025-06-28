@@ -1,0 +1,70 @@
+Getting video frame from queue took 0.0025 seconds
+Transforming image took 0.0019 seconds
+Preparing TensorRT bindings took 0.0006 seconds
+Converting output to mask took 0.0012 seconds
+Generating rays from mask took 0.0027 seconds
+Calculating features took 0.0032 seconds
+Running racing model inference took 0.0024 seconds
+Getting actions from data took 0.0045 seconds
+Setting actions to car took 0.0007 seconds
+
+Getting video frame from queue took 0.0021 seconds
+Transforming image took 0.0017 seconds
+Preparing TensorRT bindings took 0.0006 seconds
+Converting output to mask took 0.0012 seconds
+Generating rays from mask took 0.0030 seconds
+Calculating features took 0.0021 seconds
+Running racing model inference took 0.0019 seconds
+Getting actions from data took 0.0040 seconds
+Setting actions to car took 0.0005 seconds
+
+Getting video frame from queue took 0.0021 seconds
+Transforming image took 0.0018 seconds
+Preparing TensorRT bindings took 0.0006 seconds
+Inference TensorRT took 0.1072 seconds
+Running inference on mask model took 0.1088 seconds
+Converting output to mask took 0.0012 seconds
+Generating mask from image took 0.1129 seconds
+Generating rays from mask took 0.0027 seconds
+Calculating features took 0.0023 seconds
+Getting data from image took 0.1188 seconds
+Running racing model inference took 0.0019 seconds
+Prediction: [0.9997976  0.21804854]
+Getting actions from data took 0.0040 seconds
+Setting actions to car took 0.0007 seconds
+Processing video frame took 0.1264 seconds
+Average FPS: 7.75
+
+Getting video frame from queue took 0.0021 seconds
+Transforming image took 0.0017 seconds
+Preparing TensorRT bindings took 0.0006 seconds
+Inference TensorRT took 0.1076 seconds
+Running inference on mask model took 0.1091 seconds
+Converting output to mask took 0.0012 seconds
+Generating mask from image took 0.1131 seconds
+Generating rays from mask took 0.0030 seconds
+Calculating features took 0.0021 seconds
+Getting data from image took 0.1191 seconds
+Running racing model inference took 0.0019 seconds
+Prediction: [0.9959836  0.04684182]
+Getting actions from data took 0.0039 seconds
+Setting actions to car took 0.0006 seconds
+Processing video frame took 0.1266 seconds
+Average FPS: 7.78
+
+Getting video frame from queue took 0.0023 seconds
+Transforming image took 0.0017 seconds
+Preparing TensorRT bindings took 0.0005 seconds
+Inference TensorRT took 0.1059 seconds
+Running inference on mask model took 0.1074 seconds
+Converting output to mask took 0.0012 seconds
+Generating mask from image took 0.1114 seconds
+Generating rays from mask took 0.0029 seconds
+Calculating features took 0.0020 seconds
+Getting data from image took 0.1173 seconds
+Running racing model inference took 0.0019 seconds
+Prediction: [0.7761051  0.32800296]
+Getting actions from data took 0.0038 seconds
+Setting actions to car took 0.0007 seconds
+Processing video frame took 0.1250 seconds
+Average FPS: 7.95
