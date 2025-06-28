@@ -34,6 +34,7 @@ def generate_rays(mask, num_rays=50, fov_degrees=160):
     step_size = 1
 
     distances = []
+    hits = []
 
     for k in range(num_rays):
         angle = start_angle_rad + k * angle_step
@@ -55,8 +56,9 @@ def generate_rays(mask, num_rays=50, fov_degrees=160):
             hit_dist += 1
 
         distances.append(hit_dist / max_distance if max_distance != 0 else 1.0)
+        hits.append((int(x), int(y)))
 
-    return distances
+    return distances, hits
 
 
 def _get_max_raycast_distance(width, height, angle, step_size):
