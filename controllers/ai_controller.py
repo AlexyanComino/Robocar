@@ -37,13 +37,13 @@ class AIController(IController):
         self.streaming = streaming
 
         # Setup Racing Simulator
-        model_path = "model6eba09feab.pth"
+        racing_model_path = "modelbf50f8732b.pth"
 
         with TimeLogger("Loading Racing Simulator model", logger):
-            self.racing_model = MyModel(input_size=57, hidden_layers=[32, 64, 128, 64, 32], output_size=2).to(self.device)
+            self.racing_model = MyModel(input_size=57, hidden_layers=[64, 64], output_size=2).to(self.device)
 
-        with TimeLogger(f"Loading racing model weights from {model_path}", logger):
-            self.racing_model.load_state_dict(torch.load(model_path, map_location=self.device))
+        with TimeLogger(f"Loading racing model weights from {racing_model_path}", logger):
+            self.racing_model.load_state_dict(torch.load(racing_model_path, map_location=self.device))
 
         self.racing_model.eval()
 
@@ -67,13 +67,14 @@ class AIController(IController):
             )
 
         # Racing Simulator data
-        self.fov = 120
-        self.max_rays = 50
-        self.num_rays = self.max_rays
+        self.fov = 160
+        self.num_rays = 50
+
 
         self.input_columns = ['speed', 'delta_speed', 'angle_closest_ray',
                               'avg_ray_left', 'avg_ray_center', 'avg_ray_right',
-                              'ray_balance'] + [f"ray_{i}" for i in range(1, 51)]
+                              'ray_balance'] + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
+
         self.output_columns = ["input_speed", "input_steering"]
 
         self.init_columns = ["speed", "steering"] + [f"pos_{coord}" for coord in ['x', 'y', 'z']] \
@@ -92,13 +93,13 @@ class AIController(IController):
             Dictionary containing distances and rays.
         """
         from mask_generator.utils import get_mask
-        from mask_generator.ray_generator import generate_rays_vectorized, show_rays
+        from mask_generator.ray_generator import generate_rays, show_rays
 
         with TimeLogger("Generating mask from image", logger):
             mask = get_mask(self.mask_model, self.mask_transform, image)
 
         with TimeLogger("Generating rays from mask", logger):
-            distances, ray_endpoints = generate_rays_vectorized(mask, num_rays=self.num_rays, fov_degrees=self.fov)
+            distances, ray_endpoints = generate_rays(mask, num_rays=self.num_rays, fov_degrees=self.fov)
 
         rays_image = None
         if generate_image:

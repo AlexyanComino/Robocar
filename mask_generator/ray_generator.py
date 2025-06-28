@@ -9,6 +9,7 @@ import cv2
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 # -------------------------------------------
 # Ray Tracing Core
@@ -25,66 +26,66 @@ def ensure_numpy_array(data):
             return data.squeeze()
     return np.array(data)
 
-def generate_rays(mask, num_rays=50, fov_degrees=120, max_distance=None):
-    """
-    Generate rays from the bottom center of the mask and calculate distances to obstacles.
-    Compatible with NumPy 2.x
-    """
-    # Ensure mask is properly formatted
-    mask = ensure_numpy_array(mask)
+def generate_rays(mask, num_rays=50, fov_degrees=160):
+    height, width = mask.shape[:2]
+    center_x = width / 2
+    start_angle_rad = math.radians(90 + fov_degrees / 2)
+    angle_step = math.radians(-fov_degrees / (num_rays - 1))
+    step_size = 1
 
-    # Rest of the function remains the same
+    distances = []
+
+    for k in range(num_rays):
+        angle = start_angle_rad + k * angle_step
+        x = center_x
+        y = height - 1
+        hit_dist = 0
+
+        max_distance = _get_max_raycast_distance(width, height, angle, step_size)
+
+        while 0 <= int(x) < width and 0 <= int(y) < height:
+            px = int(x)
+            py = int(y)
+
+            if mask[py, px] > 0.9:
+                break
+
+            x += step_size * math.cos(angle)
+            y -= step_size * math.sin(angle)
+            hit_dist += 1
+
+        distances.append(hit_dist / max_distance if max_distance != 0 else 1.0)
+
+    return distances
+
+
+def _get_max_raycast_distance(width, height, angle, step_size):
+    x = width / 2
+    y = height - 1
+    max_dist = 0
+    while 0 <= x < width and 0 <= y < height:
+        x += step_size * math.cos(angle)
+        y -= step_size * math.sin(angle)
+        max_dist += 1
+    return max_dist
+
+def get_max_distance(mask, angle: float, step_size: float):
+    """
+    Calculate the maximum distance a ray can travel in a given direction before leaving the mask bounds.
+    Starts from the bottom center of the mask.
+    """
     height, width = mask.shape
-    origin_x = width // 2
-    origin_y = height - 1
 
-    # Calculate the angle range
-    fov_radians = np.radians(fov_degrees)
-    half_fov = fov_radians / 2
+    x = width / 2.0
+    y = height - 1
+    hit_dist = 0
 
-    # Calculate the angles for each ray
-    angles = np.linspace(-half_fov, half_fov, num_rays)
+    while 0 <= x < width and 0 <= y < height:
+        x += step_size * np.cos(angle)
+        y -= step_size * np.sin(angle)
+        hit_dist += 1
 
-    ray_endpoints = []
-    distances = {}
-
-    if max_distance is None:
-        max_distance = int(np.sqrt(width**2 + height**2))
-
-    # Cast rays and find intersections
-    for i, angle in enumerate(angles):
-        # Direction vector
-        dx = np.sin(angle)
-        dy = -np.cos(angle)  # Negative because y-axis is inverted in images
-
-        # Ray tracing
-        found_obstacle = False
-        for dist in range(1, max_distance):
-            x = int(origin_x + dx * dist)
-            y = int(origin_y + dy * dist)
-
-            # Check if we're out of bounds
-            if x < 0 or x >= width or y < 0 or y >= height:
-                ray_endpoints.append((x, y))
-                distances[f"ray_{i}"] = dist
-                found_obstacle = True
-                break
-
-            # Check if we hit an obstacle (white pixel)
-            if mask[y, x] > 0:
-                ray_endpoints.append((x, y))
-                distances[f"ray_{i}"] = dist
-                found_obstacle = True
-                break
-
-        # If no obstacle was found, add the maximum distance
-        if not found_obstacle:
-            x = int(origin_x + dx * max_distance)
-            y = int(origin_y + dy * max_distance)
-            ray_endpoints.append((x, y))
-            distances[f"ray_{i}"] = max_distance
-
-    return distances, ray_endpoints
+    return hit_dist
 
 def generate_rays_vectorized(mask, num_rays=50, fov_degrees=120):
     """
@@ -127,6 +128,9 @@ def generate_rays_vectorized(mask, num_rays=50, fov_degrees=120):
     ray_endpoints = []
 
     for i in range(num_rays):
+
+        max_distance = get_max_distance(mask, angles_rad[i], 1.0)
+
         if hit_mask[i]:
             dist = hit_indices[i] + 1  # +1 since range starts from 1
             end_x = x[hit_indices[i], i]
