@@ -26,49 +26,83 @@ def ensure_numpy_array(data):
             return data.squeeze()
     return np.array(data)
 
-def generate_rays(mask, num_rays=50, fov_degrees=160):
+def generate_rays(mask: np.ndarray, num_rays=50, fov_degrees=160):
     height, width = mask.shape[:2]
     center_x = width / 2
-    start_angle_rad = math.radians(90 + fov_degrees / 2)
-    angle_step = math.radians(-fov_degrees / (num_rays - 1))
+    y_start = height - 1
     step_size = 1
 
+    # Angles for rays
+    angles = np.radians(90 + fov_degrees / 2) + np.radians(-fov_degrees / (num_rays - 1)) * np.arange(num_rays)
+    cos_angles = np.cos(angles)
+    sin_angles = np.sin(angles)
+
+    # Compute max distance for normalization
+    max_distances = _get_max_raycast_distance_vectorized(width, height, angles, step_size)
+
+    # Preallocate outputs
     distances = {}
     hits = []
 
-    for k in range(num_rays):
-        angle = start_angle_rad + k * angle_step
-        x = center_x
-        y = height - 1
-        hit_dist = 0
+    # Initial positions
+    x = np.full(num_rays, center_x, dtype=np.float32)
+    y = np.full(num_rays, y_start, dtype=np.float32)
+    hit_dists = np.zeros(num_rays, dtype=np.int32)
+    active = np.ones(num_rays, dtype=bool)
 
-        max_distance = _get_max_raycast_distance(width, height, angle, step_size)
+    while active.any():
+        px = x.astype(int)
+        py = y.astype(int)
 
-        while 0 <= int(x) < width and 0 <= int(y) < height:
-            px = int(x)
-            py = int(y)
+        # In bounds check
+        in_bounds = (px >= 0) & (px < width) & (py >= 0) & (py < height)
+        still_active = active & in_bounds
 
-            if mask[py, px] > 0.9:
-                break
+        if not still_active.any():
+            break
 
-            x += step_size * math.cos(angle)
-            y -= step_size * math.sin(angle)
-            hit_dist += 1
+        # Sample mask for active rays
+        mask_values = np.zeros(num_rays)
+        mask_values[still_active] = mask[py[still_active], px[still_active]]
 
-        distances[f"ray_{k}"] = hit_dist / max_distance if max_distance != 0 else 1.0
-        hits.append((int(x), int(y)))
+        # Rays hitting the mask
+        hit = mask_values > 0.9
+        active &= ~hit
+
+        # Update only still-active rays
+        x[active] += step_size * cos_angles[active]
+        y[active] -= step_size * sin_angles[active]
+        hit_dists[active] += 1
+
+    # Normalize and return
+    for i in range(num_rays):
+        max_dist = max_distances[i]
+        distances[f"ray_{i}"] = hit_dists[i] / max_dist if max_dist > 0 else 1.0
+        hits.append((int(x[i]), int(y[i])))
 
     return distances, hits
 
 
-def _get_max_raycast_distance(width, height, angle, step_size):
-    x = width / 2
-    y = height - 1
-    max_dist = 0
-    while 0 <= x < width and 0 <= y < height:
-        x += step_size * math.cos(angle)
-        y -= step_size * math.sin(angle)
-        max_dist += 1
+def _get_max_raycast_distance_vectorized(width, height, angles, step_size=1):
+    # Maximum distance until out of image bounds for each ray
+    center_x = width / 2
+    y_start = height - 1
+
+    # Compute max distance per ray
+    cos_angles = np.cos(angles)
+    sin_angles = np.sin(angles)
+
+    max_dist = np.full_like(angles, 1e6, dtype=np.float32)
+
+    for i, (cos_a, sin_a) in enumerate(zip(cos_angles, sin_angles)):
+        x, y = center_x, y_start
+        d = 0
+        while 0 <= x < width and 0 <= y < height:
+            x += step_size * cos_a
+            y -= step_size * sin_a
+            d += 1
+        max_dist[i] = d
+
     return max_dist
 
 def get_max_distance(mask, angle: float, step_size: float):
