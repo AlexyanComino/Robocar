@@ -256,9 +256,9 @@ class GamepadWriterController(IController):
                     if delta > 0:
                         fps_history.append(1.0 / delta)
                     avg_fps = sum(fps_history) / len(fps_history)
-                    # logger.debug(f"Average FPS: {avg_fps:.2f}")
-                    # print(f"\rAverage FPS: {avg_fps:.2f}  ", end='')
-                    # with TimeLogger("Processing video frame", logger):
+                    logger.debug(f"Average FPS: {avg_fps:.2f}")
+                    print(f"\rAverage FPS: {avg_fps:.2f}  ", end='')
+                    with TimeLogger("Processing video frame", logger):
                         # with TimeLogger("Getting video frame from queue", logger):
                         #     frame = camera.get_frame()
                         #     image_rgb = cvtColor(frame, COLOR_BGR2RGB)
@@ -271,12 +271,12 @@ class GamepadWriterController(IController):
                         #     with TimeLogger("Streaming image", logger):
                         #         self.camera_stream.stream_image(image_rays)
 
-                        # with TimeLogger("Getting actions from data", logger):
-                    updated = self.update()
-                    if updated:
-                        actions = self.get_actions()
-                        with TimeLogger("Setting actions to car", logger):
-                            self.car.set_actions(actions)
+                        with TimeLogger("Getting actions from data", logger):
+                            updated = self.update()
+                            if updated:
+                                actions = self.get_actions()
+                                with TimeLogger("Setting actions to car", logger):
+                                    self.car.set_actions(actions)
 
                         # with TimeLogger("Writing data to recorder", logger):
                         #     self.data_recorder.write_data(data, self.old_state['throttle'], self.old_state['steering'])
