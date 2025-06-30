@@ -143,7 +143,7 @@ def generate_rays_vectorized(mask, num_rays=50, fov_degrees=120):
             end_y = y[-1, i]
 
         dist /= max_distance
-        distances[f"ray_{i}"] = dist
+        distances[f"ray_{i+1}"] = dist
         ray_endpoints.append((end_x, end_y))
 
     return distances, ray_endpoints
@@ -226,7 +226,7 @@ def show_rays(mask, ray_endpoints, distances, image=None, alpha=0.6, show_text=F
         cv2.line(base, (origin_x, origin_y), (int(end_x), int(end_y)), color, 1, cv2.LINE_AA)
 
         if show_text and i % text_interval == 0:
-            distance = distances[f"ray_{i}"]
+            distance = distances[f"ray_{i+1}"]
             mid_x = int((origin_x + end_x) / 2)
             mid_y = int((origin_y + end_y) / 2)
             offset = int(20 * np.sin(i / 2.0))
