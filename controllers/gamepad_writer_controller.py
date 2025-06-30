@@ -14,6 +14,7 @@ from logger import setup_logger, TimeLogger
 from data_recorder import DataRecorder
 
 import numpy as np
+from evdev import InputDevice, categorize, ecodes
 import select
 
 logger = setup_logger(__name__)
@@ -45,6 +46,8 @@ class GamepadWriterController(IController):
         self.gamepad_state = {}
         self.updated = []
         self.old_state = {'throttle': 0.0, 'steering': 0.5}
+
+        self.gamepad = InputDevice('/dev/input/event2')
 
         # Setup Mask Generator
         with TimeLogger("Loading Mask Generator model", logger):
@@ -162,25 +165,28 @@ class GamepadWriterController(IController):
 
     def update(self):
         """
-        Poll the gamepad in a non-blocking way using has_event().
+        Poll the evdev gamepad in a non-blocking way.
         """
         updated = []
         try:
-            gamepad = devices.gamepads[0]
+            # Use select to check if data is ready, timeout 0 = non-blocking
+            rlist, _, _ = select.select([self.gamepad], [], [], 0)
+            if rlist:
+                for event in self.gamepad.read():
+                    # We only care about Key (buttons) and Absolute (axes) events
+                    if event.type in (ecodes.EV_KEY, ecodes.EV_ABS):
+                        # Normalize event code name (optional, can just use event.code)
+                        code = ecodes.bytype[event.type].get(event.code, event.code)
 
-            if gamepad.has_event():  # ✅ Non-blocking check
-                events = gamepad.read()
-                for event in events:
-                    if event.ev_type in ('Key', 'Absolute'):
                         prev_state = self.gamepad_state.get(event.code, 0)
-                        self.gamepad_state[event.code] = event.state
-                        if prev_state != event.state:
-                            updated.append((event.code, event.state))
+                        if prev_state != event.value:
+                            self.gamepad_state[event.code] = event.value
+                            print(f"Gamepad event: {code} = {event.value}")
+                            updated.append((event.code, event.value))
 
-        except UnpluggedError:
-            print("No gamepad connected.")
-        except Exception as e:
-            print(f"Gamepad read error: {e}")
+        except OSError as e:
+            # Device might be disconnected or unavailable
+            print(f"Gamepad read error or disconnected: {e}")
 
         self.updated = updated
         return updated
