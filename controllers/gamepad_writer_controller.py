@@ -88,7 +88,7 @@ class GamepadWriterController(IController):
         # self.output_columns = ["input_speed", "input_steering"]
 
         self.init_columns = ["speed", "steering"] \
-                    + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
+                    + [f"ray_{i + 1}" for i in range(self.num_rays)]
 
         self.previous_data = {}
 
@@ -144,7 +144,7 @@ class GamepadWriterController(IController):
             data["delta_steering"] = data["steering"] - self.previous_data.get("steering", 0.0)
 
             # List of ray values
-            ray_values = np.array([rays_data[f"ray_{i+1}"] for i in range(self.num_rays)])
+            ray_values = np.array([rays_data[f"ray_{i + 1}"] for i in range(self.num_rays)])
 
             # Find the closest ray to the car
             closest_ray_index = np.argmin(ray_values)
