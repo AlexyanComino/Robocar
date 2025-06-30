@@ -49,7 +49,7 @@ class DataRecorder:
             if isinstance(value, float):
                 data[key] = round(value, DECIMAL_PLACES)
 
-        row = [input_speed, input_steering, data["speed"], data["steering"]] + [data[f"pos_{coord}"] for coord in ["x", "y", "z"]]
+        row = [input_speed, input_steering, data["speed"], data["steering"]]
         row += [data["delta_speed"], data["delta_steering"], data["angle_closest_ray"], data["avg_ray"], data["std_ray"], data["min_ray"],
                 data["max_ray"], data["avg_ray_left"], data["avg_ray_center"],
                 data["avg_ray_right"], data["ray_balance"], data["acceleration"]]
