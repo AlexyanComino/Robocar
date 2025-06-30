@@ -106,13 +106,13 @@ class GamepadWriterController(IController):
             Dictionary containing distances and rays.
         """
         from mask_generator.utils import get_mask
-        from mask_generator.ray_generator import generate_rays, show_rays
+        from mask_generator.ray_generator import generate_rays_vectorized, show_rays
 
         with TimeLogger("Generating mask from image", logger):
             mask = get_mask(self.mask_model, self.mask_transform, image)
 
         with TimeLogger("Generating rays from mask", logger):
-            distances, ray_endpoints = generate_rays(mask, num_rays=self.num_rays, fov_degrees=self.fov)
+            distances, ray_endpoints = generate_rays_vectorized(mask, num_rays=self.num_rays, fov_degrees=self.fov)
 
         rays_image = None
         if generate_image:
