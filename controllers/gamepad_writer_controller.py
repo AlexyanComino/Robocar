@@ -6,7 +6,7 @@
 ##
 
 from controllers.icontroller import IController
-from inputs import get_gamepad
+from inputs import devices, UnpluggedError
 from car import Car
 from camera import Camera
 from camera_stream_server import CameraStreamServer
@@ -160,17 +160,24 @@ class GamepadWriterController(IController):
         return data, image_rays
 
     def update(self):
-        """Update the gamepad state by reading the current inputs."""
-        events = get_gamepad()
-        updated = []
+    """Update the gamepad state by reading the current inputs (non-blocking)."""
+    updated = []
+    try:
+        events = devices.gamepads[0].read()  # Non-blocking read
         for event in events:
             if event.ev_type in ('Key', 'Absolute'):
                 prev_state = self.gamepad_state.get(event.code, 0)
                 self.gamepad_state[event.code] = event.state
                 if prev_state != event.state:
                     updated.append((event.code, event.state))
-        self.updated = updated
-        return updated
+    except UnpluggedError:
+        print("No gamepad connected.")
+    except BlockingIOError:
+        # No events available right now — expected in non-blocking mode
+        pass
+
+    self.updated = updated
+    return updated
 
     def get_state(self, code: str) -> int:
         """Get the current state of a specific gamepad input."""
