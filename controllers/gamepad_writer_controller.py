@@ -129,15 +129,13 @@ class GamepadWriterController(IController):
         Returns:
             Scaled input data as a dictionary.
         """
-        rays_data, image_rays = self.get_rays_data(image, generate_image=generate_image)
+        data, image_rays = self.get_rays_data(image, generate_image=generate_image)
 
         with TimeLogger("Calculating features", logger):
             # For Power limit 0.03 is 1.55
             # For Power limit 0.02 is 0.71
             speed = self.car.get_speed() / 1.55
             speed = max(0.0, min(speed, 1.0))  # Clamp speed to [0, 1]
-
-            data = dict.fromkeys(self.init_columns, 0.0)
 
             data["speed"] = speed
             data["steering"] = self.read_steering_raw()
@@ -147,7 +145,7 @@ class GamepadWriterController(IController):
             data["delta_steering"] = data["steering"] - self.previous_data.get("steering", 0.0)
 
             # List of ray values
-            ray_values = np.array([rays_data[f"ray_{i + 1}"] for i in range(self.num_rays)])
+            ray_values = np.array([data[f"ray_{i + 1}"] for i in range(self.num_rays)])
 
             # Find the closest ray to the car
             closest_ray_index = np.argmin(ray_values)
