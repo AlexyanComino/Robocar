@@ -160,25 +160,26 @@ class GamepadWriterController(IController):
         return data, image_rays
 
     def update(self):
-        """Update the gamepad state using only the most recent inputs (non-blocking)."""
-        latest_state = {}
+        """
+        Update the gamepad state by reading the current inputs (non-blocking).
+        """
+        updated = []
         try:
-            events = devices.gamepads[0].read()
+            events = devices.gamepads[0].read()  # Non-blocking read
             for event in events:
                 if event.ev_type in ('Key', 'Absolute'):
-                    latest_state[event.code] = event.state  # overwrite previous
+                    prev_state = self.gamepad_state.get(event.code, 0)
+                    self.gamepad_state[event.code] = event.state
+                    if prev_state != event.state:
+                        updated.append((event.code, event.state))
         except UnpluggedError:
             print("No gamepad connected.")
         except BlockingIOError:
-            pass  # no input available right now
+            # No events available right now — expected in non-blocking mode
+            pass
 
-        updated = []
-        for code, state in latest_state.items():
-            prev_state = self.gamepad_state.get(code, 0)
-            self.gamepad_state[code] = state
-            if prev_state != state:
-                updated.append((code, state))
-
+        if updated:
+            updated = updated[-1:]
         self.updated = updated
         return updated
 
