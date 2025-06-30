@@ -45,14 +45,14 @@ class GamepadWriterController(IController):
         self.updated = []
         self.old_state = {'throttle': 0.0, 'steering': 0.5}
 
-        # # Setup Mask Generator
-        # with TimeLogger("Loading Mask Generator model", logger):
-        #     pad_divisor = load_pad_divisor_from_run_dir(mask_model_dir)
-        #     engine_path = f"{mask_model_dir}/model_fp16.engine"
-        #     logger.info(f"Using Mask Generator engine: {engine_path}")
-        #     self.mask_model = TRTWrapper(engine_path, device=self.device)
-        #     self.height, self.width = self.mask_model.get_input_shape()[2:]
-        #     logger.info(f"Mask Generator width: {self.width}, height: {self.height}")
+        # Setup Mask Generator
+        with TimeLogger("Loading Mask Generator model", logger):
+            pad_divisor = load_pad_divisor_from_run_dir(mask_model_dir)
+            engine_path = f"{mask_model_dir}/model_fp16.engine"
+            logger.info(f"Using Mask Generator engine: {engine_path}")
+            self.mask_model = TRTWrapper(engine_path, device=self.device)
+            self.height, self.width = self.mask_model.get_input_shape()[2:]
+            logger.info(f"Mask Generator width: {self.width}, height: {self.height}")
 
         # with TimeLogger("Initializing mask generator transform", logger):
         #     self.mask_transform = KorniaInferTransform(
