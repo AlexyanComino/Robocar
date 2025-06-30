@@ -14,7 +14,6 @@ from logger import setup_logger, TimeLogger
 from data_recorder import DataRecorder
 
 import numpy as np
-from evdev import InputDevice
 import select
 
 logger = setup_logger(__name__)
@@ -167,9 +166,9 @@ class GamepadWriterController(IController):
         """
         updated = []
         try:
-            gamepad = InputDevice(devices.gamepads[0]._character_device_path)
-
-            rlist, _, _ = select.select([gamepad], [], [], 0)
+            gamepad = devices.gamepads[0]
+            fd = gamepad._character_file.fileno()
+            rlist, _, _ = select.select([fd], [], [], 0)
             if rlist:
                 events = gamepad.read()
                 for event in events:
