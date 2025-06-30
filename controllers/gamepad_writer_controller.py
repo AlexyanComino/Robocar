@@ -81,12 +81,11 @@ class GamepadWriterController(IController):
         self.fov = 160
         self.num_rays = 50
 
+        # self.input_columns = ['speed', 'delta_speed', 'angle_closest_ray',
+        #                       'avg_ray_left', 'avg_ray_center', 'avg_ray_right',
+        #                       'ray_balance'] + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
 
-        self.input_columns = ['speed', 'delta_speed', 'angle_closest_ray',
-                              'avg_ray_left', 'avg_ray_center', 'avg_ray_right',
-                              'ray_balance'] + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
-
-        self.output_columns = ["input_speed", "input_steering"]
+        # self.output_columns = ["input_speed", "input_steering"]
 
         self.init_columns = ["speed", "steering"] \
                     + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
@@ -113,6 +112,7 @@ class GamepadWriterController(IController):
 
         with TimeLogger("Generating rays from mask", logger):
             distances, ray_endpoints = generate_rays_vectorized(mask, num_rays=self.num_rays, fov_degrees=self.fov)
+            print(f"Generated {len(ray_endpoints)} rays distance - {distances}")
 
         rays_image = None
         if generate_image:

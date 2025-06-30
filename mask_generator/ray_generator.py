@@ -131,8 +131,6 @@ def generate_rays_vectorized(mask, num_rays=50, fov_degrees=120):
 
     for i in range(num_rays):
 
-        max_distance = get_max_distance(mask, angles_rad[i], 1.0)
-
         if hit_mask[i]:
             dist = hit_indices[i] + 1  # +1 since range starts from 1
             end_x = x[hit_indices[i], i]
@@ -143,7 +141,7 @@ def generate_rays_vectorized(mask, num_rays=50, fov_degrees=120):
             end_y = y[-1, i]
 
         dist /= max_distance
-        distances[f"ray_{i+1}"] = dist
+        distances[f"ray_{i}"] = dist
         ray_endpoints.append((end_x, end_y))
 
     return distances, ray_endpoints
@@ -215,7 +213,7 @@ def show_rays(mask, ray_endpoints, distances, image=None, alpha=0.6, show_text=F
         base = cv2.addWeighted(base, 1 - alpha, mask_colored, alpha, 0)
 
     # Normalize distances for color mapping
-    dist_values = np.array([distances[f"ray_{i+1}"] for i in range(len(ray_endpoints))])
+    dist_values = np.array([distances[f"ray_{i}"] for i in range(len(ray_endpoints))])
     dist_norm = (dist_values - dist_values.min()) / (np.ptp(dist_values) + 1e-8)
     cmap = plt.get_cmap(colormap_name)
     colors = (np.array([cmap(val)[:3] for val in dist_norm]) * 255).astype(np.uint8)
@@ -226,7 +224,7 @@ def show_rays(mask, ray_endpoints, distances, image=None, alpha=0.6, show_text=F
         cv2.line(base, (origin_x, origin_y), (int(end_x), int(end_y)), color, 1, cv2.LINE_AA)
 
         if show_text and i % text_interval == 0:
-            distance = distances[f"ray_{i+1}"]
+            distance = distances[f"ray_{i}"]
             mid_x = int((origin_x + end_x) / 2)
             mid_y = int((origin_y + end_y) / 2)
             offset = int(20 * np.sin(i / 2.0))
