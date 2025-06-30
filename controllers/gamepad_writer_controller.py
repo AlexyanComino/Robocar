@@ -181,14 +181,13 @@ class GamepadWriterController(IController):
                         prev_state = self.gamepad_state.get(event.code, 0)
                         if prev_state != event.value:
                             self.gamepad_state[event.code] = event.value
-                            print(f"Gamepad event: {code} = {event.value}")
-                            updated.append((event.code, event.value))
-                            self.updated = updated
+                            updated.append((code, event.value))
 
         except OSError as e:
             # Device might be disconnected or unavailable
             print(f"Gamepad read error or disconnected: {e}")
 
+        self.updated = updated
         return updated
 
 
