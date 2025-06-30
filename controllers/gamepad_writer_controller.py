@@ -167,7 +167,7 @@ class GamepadWriterController(IController):
         """
         updated = []
         try:
-            gamepad = InputDevice(devices.gamepads[0].path)
+            gamepad = InputDevice(devices.gamepads[0]._device_path)
 
             rlist, _, _ = select.select([gamepad], [], [], 0)
             if rlist:
