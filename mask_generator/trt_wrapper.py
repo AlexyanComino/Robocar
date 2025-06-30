@@ -88,10 +88,9 @@ class TRTWrapper:
     def forward(self, input_tensor: torch.Tensor) -> torch.Tensor:
         assert input_tensor.is_cuda, "Input tensor must be on CUDA device"
 
+        assert input_tensor.shape == self.input_static_shape, \
+            f"Input tensor shape {input_tensor.shape} does not match expected shape {self.input_static_shape}"
         with TimeLogger("Preparing TensorRT bindings", logger):
-            # Set input shape for dynamic dimensions
-            self.context.set_binding_shape(self.input_index, input_tensor.shape)
-
             # Output info
             output_shape = tuple(self.context.get_binding_shape(self.output_index))
             output_dtype = trt.nptype(self.engine.get_binding_dtype(self.output_index))
