@@ -87,8 +87,8 @@ class GamepadWriterController(IController):
 
         # self.output_columns = ["input_speed", "input_steering"]
 
-        self.init_columns = ["speed", "steering"] \
-                    + [f"ray_{i + 1}" for i in range(self.num_rays)]
+        # self.init_columns = ["speed", "steering"] \
+        #             + [f"ray_{i + 1}" for i in range(self.num_rays)]
 
         self.previous_data = {}
 
@@ -140,6 +140,9 @@ class GamepadWriterController(IController):
             data = dict.fromkeys(self.init_columns, 0.0)
 
             data["speed"] = speed
+            data["steering"] = self.read_steering_raw()
+            print(f"Steering raw value: {data['steering']}")
+
             data["delta_speed"] = data["speed"] - self.previous_data.get("speed", 0.0)
             data["delta_steering"] = data["steering"] - self.previous_data.get("steering", 0.0)
 
@@ -247,6 +250,16 @@ class GamepadWriterController(IController):
     def get_throttle(self, throttle: float) -> float:
             """ Get the throttle value from the gamepad state. """
             return max(-1.0, min(1.0, throttle))  # Clamp to [-1.0, 1.0]
+
+    def read_steering_raw(self) -> float:
+        """
+        Récupère la valeur brute du steering depuis self.gamepad_state en [-1, 1].
+        Si aucune valeur, retourne 0.0.
+        """
+        state = self.gamepad_state.get(ecodes.ABS_X, 0)
+        # state est un int entre [-32768, 32767]
+        normalized = max(-1.0, min(1.0, state / 32767.0))
+        return normalized
 
     def get_actions(self) -> dict:
         """
