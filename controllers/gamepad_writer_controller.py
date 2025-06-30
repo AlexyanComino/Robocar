@@ -167,7 +167,8 @@ class GamepadWriterController(IController):
         updated = []
         try:
             gamepad = devices.gamepads[0]
-            rlist, _, _ = select.select([gamepad], [], [], 0)  # 0 = non-blocking
+            fd = gamepad._GamePad__device.fileno()  # Access internal device fd
+            rlist, _, _ = select.select([fd], [], [], 0)
             if rlist:
                 events = gamepad.read()
                 for event in events:
