@@ -215,7 +215,7 @@ def show_rays(mask, ray_endpoints, distances, image=None, alpha=0.6, show_text=F
         base = cv2.addWeighted(base, 1 - alpha, mask_colored, alpha, 0)
 
     # Normalize distances for color mapping
-    dist_values = np.array([distances[f"ray_{i}"] for i in range(len(ray_endpoints))])
+    dist_values = np.array([distances[f"ray_{i+1}"] for i in range(len(ray_endpoints))])
     dist_norm = (dist_values - dist_values.min()) / (np.ptp(dist_values) + 1e-8)
     cmap = plt.get_cmap(colormap_name)
     colors = (np.array([cmap(val)[:3] for val in dist_norm]) * 255).astype(np.uint8)
