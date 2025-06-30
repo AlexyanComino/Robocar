@@ -30,6 +30,7 @@ class GamepadWriterController(IController):
             from mask_generator.models.utils import load_pad_divisor_from_run_dir
             from mask_generator.trt_wrapper import TRTWrapper
             from mask_generator.transforms import KorniaInferTransform
+            from racing.model import MyModel
             import torch
 
         self.torch = torch # Store torch reference
@@ -39,6 +40,20 @@ class GamepadWriterController(IController):
 
         self.car = car
         self.streaming = streaming
+
+        # Setup Racing Simulator
+        racing_model_path = "modelbf50f8732b.pth"
+
+        with TimeLogger("Loading Racing Simulator model", logger):
+            self.racing_model = MyModel(input_size=57, hidden_layers=[64, 64], output_size=2).to(self.device)
+
+        with TimeLogger(f"Loading racing model weights from {racing_model_path}", logger):
+            self.racing_model.load_state_dict(torch.load(racing_model_path, map_location=self.device))
+
+        self.racing_model.eval()
+
+        example_input = torch.randn(57, device=self.device)
+        self.racing_model = torch.jit.trace(self.racing_model, example_input)
 
         self.gamepad_state = {}
         self.updated = []
