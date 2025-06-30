@@ -45,21 +45,21 @@ class GamepadWriterController(IController):
         self.updated = []
         self.old_state = {'throttle': 0.0, 'steering': 0.5}
 
-        # Setup Mask Generator
-        with TimeLogger("Loading Mask Generator model", logger):
-            pad_divisor = load_pad_divisor_from_run_dir(mask_model_dir)
-            engine_path = f"{mask_model_dir}/model_fp16.engine"
-            logger.info(f"Using Mask Generator engine: {engine_path}")
-            self.mask_model = TRTWrapper(engine_path, device=self.device)
-            self.height, self.width = self.mask_model.get_input_shape()[2:]
-            logger.info(f"Mask Generator width: {self.width}, height: {self.height}")
+        # # Setup Mask Generator
+        # with TimeLogger("Loading Mask Generator model", logger):
+        #     pad_divisor = load_pad_divisor_from_run_dir(mask_model_dir)
+        #     engine_path = f"{mask_model_dir}/model_fp16.engine"
+        #     logger.info(f"Using Mask Generator engine: {engine_path}")
+        #     self.mask_model = TRTWrapper(engine_path, device=self.device)
+        #     self.height, self.width = self.mask_model.get_input_shape()[2:]
+        #     logger.info(f"Mask Generator width: {self.width}, height: {self.height}")
 
-        with TimeLogger("Initializing mask generator transform", logger):
-            self.mask_transform = KorniaInferTransform(
-                pad_divisor=pad_divisor,
-                image_size=(self.height, self.width),
-                device=self.device
-            )
+        # with TimeLogger("Initializing mask generator transform", logger):
+        #     self.mask_transform = KorniaInferTransform(
+        #         pad_divisor=pad_divisor,
+        #         image_size=(self.height, self.width),
+        #         device=self.device
+        #     )
 
         # Racing Simulator data
         self.fov = 160
@@ -249,17 +249,17 @@ class GamepadWriterController(IController):
                     logger.debug(f"Average FPS: {avg_fps:.2f}")
                     # print(f"\rAverage FPS: {avg_fps:.2f}  ", end='')
                     with TimeLogger("Processing video frame", logger):
-                        with TimeLogger("Getting video frame from queue", logger):
-                            frame = camera.get_frame()
-                            image_rgb = cvtColor(frame, COLOR_BGR2RGB)
+                        # with TimeLogger("Getting video frame from queue", logger):
+                        #     frame = camera.get_frame()
+                        #     image_rgb = cvtColor(frame, COLOR_BGR2RGB)
 
-                        with TimeLogger("Getting data from image", logger):
-                            data, image_rays = self.get_data(image_rgb, generate_image=self.streaming)
+                        # with TimeLogger("Getting data from image", logger):
+                        #     data, image_rays = self.get_data(image_rgb, generate_image=self.streaming)
 
-                        # STREAMING
-                        if self.camera_stream is not None:
-                            with TimeLogger("Streaming image", logger):
-                                self.camera_stream.stream_image(image_rays)
+                        # # STREAMING
+                        # if self.camera_stream is not None:
+                        #     with TimeLogger("Streaming image", logger):
+                        #         self.camera_stream.stream_image(image_rays)
 
                         with TimeLogger("Getting actions from data", logger):
                             updated = self.update()
@@ -268,6 +268,6 @@ class GamepadWriterController(IController):
                                 with TimeLogger("Setting actions to car", logger):
                                     self.car.set_actions(actions)
 
-                        with TimeLogger("Writing data to recorder", logger):
-                            self.data_recorder.write_data(data, self.old_state['throttle'], self.old_state['steering'])
+                        # with TimeLogger("Writing data to recorder", logger):
+                        #     self.data_recorder.write_data(data, self.old_state['throttle'], self.old_state['steering'])
 
