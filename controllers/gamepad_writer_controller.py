@@ -14,6 +14,7 @@ from logger import setup_logger, TimeLogger
 from data_recorder import DataRecorder
 
 import numpy as np
+import select
 
 logger = setup_logger(__name__)
 
@@ -161,29 +162,25 @@ class GamepadWriterController(IController):
 
     def update(self):
         """
-        Update the gamepad state by reading the current inputs (non-blocking).
+        Update the gamepad state by reading the current inputs (truly non-blocking).
         """
         updated = []
-        print("Reading gamepad state...")
         try:
-            print("Reading gamepad state 2...")
-            events = devices.gamepads[0].read()  # Non-blocking read
-            print("Reading gamepad state 3...")
-            for event in events:
-                if event.ev_type in ('Key', 'Absolute'):
-                    prev_state = self.gamepad_state.get(event.code, 0)
-                    self.gamepad_state[event.code] = event.state
-                    if prev_state != event.state:
-                        updated.append((event.code, event.state))
-            print("Reading gamepad state 4...")
+            gamepad = devices.gamepads[0]
+            rlist, _, _ = select.select([gamepad], [], [], 0)  # 0 = non-blocking
+            if rlist:
+                events = gamepad.read()
+                for event in events:
+                    if event.ev_type in ('Key', 'Absolute'):
+                        prev_state = self.gamepad_state.get(event.code, 0)
+                        self.gamepad_state[event.code] = event.state
+                        if prev_state != event.state:
+                            updated.append((event.code, event.state))
         except UnpluggedError:
             print("No gamepad connected.")
-        except BlockingIOError:
-            print("No events available right now — expected in non-blocking mode")
-            # No events available right now — expected in non-blocking mode
-            pass
+        except Exception as e:
+            print(f"Unexpected error: {e}")
 
-        print("Reading gamepad state 5...")
         self.updated = updated
         return updated
 
