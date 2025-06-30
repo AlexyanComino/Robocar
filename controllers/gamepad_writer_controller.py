@@ -217,6 +217,7 @@ class GamepadWriterController(IController):
         """
         action = self.old_state.copy()
 
+        print(self.updated)
         for code, state in self.updated:
             if code == 'ABS_X':
                 action['steering'] = self.get_steering((state + 32768) / 65535.0)
