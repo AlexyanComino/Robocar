@@ -168,10 +168,7 @@ class GamepadWriterController(IController):
         try:
             gamepad = devices.gamepads[0]
             # Try to access the public _device attribute, fallback to private if necessary
-            try:
-                fd = gamepad._device.fileno()
-            except AttributeError:
-                fd = gamepad._GamePad__device.fileno()
+            fd = gamepad._device.fileno() if hasattr(gamepad._device, 'fileno') else gamepad._device._fd
             rlist, _, _ = select.select([fd], [], [], 0)
             if rlist:
                 events = gamepad.read()
