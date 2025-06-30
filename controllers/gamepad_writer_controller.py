@@ -97,6 +97,7 @@ class GamepadWriterController(IController):
         from mask_generator.ray_generator import generate_rays, show_rays
 
         with TimeLogger("Generating mask from image", logger):
+            print(image.shape)
             mask = get_mask(self.mask_model, self.mask_transform, image)
 
         with TimeLogger("Generating rays from mask", logger):
