@@ -6,7 +6,6 @@
 ##
 
 from controllers.icontroller import IController
-from inputs import devices, UnpluggedError
 from car import Car
 from camera import Camera
 from camera_stream_server import CameraStreamServer
@@ -14,7 +13,7 @@ from logger import setup_logger, TimeLogger
 from data_recorder import DataRecorder
 
 import numpy as np
-from evdev import InputDevice, categorize, ecodes
+from evdev import InputDevice, ecodes
 import select
 
 logger = setup_logger(__name__)
@@ -26,9 +25,7 @@ class GamepadWriterController(IController):
     """
 
     def __init__(self, car: Car, mask_model_dir: str, streaming: bool = False):
-        """
-        Initialize the GamepadController.
-        """
+        """ Initialize the GamepadController. """
         with TimeLogger("Import necessary modules", logger):
             from mask_generator.models.utils import load_pad_divisor_from_run_dir
             from mask_generator.trt_wrapper import TRTWrapper
@@ -97,7 +94,6 @@ class GamepadWriterController(IController):
         from mask_generator.ray_generator import generate_rays, show_rays
 
         with TimeLogger("Generating mask from image", logger):
-            print(image.shape)
             mask = get_mask(self.mask_model, self.mask_transform, image)
 
         with TimeLogger("Generating rays from mask", logger):
@@ -191,11 +187,6 @@ class GamepadWriterController(IController):
         self.updated = updated
         return updated
 
-
-    def get_state(self, code: str) -> int:
-        """Get the current state of a specific gamepad input."""
-        return self.gamepad_state.get(code, 0)
-
     def get_steering(self, steering: float) -> float:
         """
         Get the steering value from the gamepad state.
@@ -217,7 +208,6 @@ class GamepadWriterController(IController):
         """
         action = self.old_state.copy()
 
-        print(self.updated)
         for code, state in self.updated:
             if code == 'ABS_X':
                 action['steering'] = self.get_steering((state + 32768) / 65535.0)
@@ -242,7 +232,7 @@ class GamepadWriterController(IController):
         from cv2 import cvtColor, COLOR_BGR2RGB
 
         with Camera(width=self.width, height=self.height) as camera:
-            fps_history = deque(maxlen=15)
+            fps_history = deque(maxlen=30)
 
             prev_time = time.time()
 
@@ -257,7 +247,6 @@ class GamepadWriterController(IController):
                         fps_history.append(1.0 / delta)
                     avg_fps = sum(fps_history) / len(fps_history)
                     logger.debug(f"Average FPS: {avg_fps:.2f}")
-                    print(f"\rAverage FPS: {avg_fps:.2f}  ", end='')
                     with TimeLogger("Processing video frame", logger):
                         with TimeLogger("Getting video frame from queue", logger):
                             frame = camera.get_frame()

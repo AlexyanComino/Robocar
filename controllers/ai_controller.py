@@ -205,7 +205,6 @@ class AIController(IController):
                         fps_history.append(1.0 / delta)
                     avg_fps = sum(fps_history) / len(fps_history)
                     logger.debug(f"Average FPS: {avg_fps:.2f}")
-                    # print(f"\rAverage FPS: {avg_fps:.2f}  ", end='')
                     with TimeLogger("Processing video frame", logger):
                         with TimeLogger("Getting video frame from queue", logger):
                             frame = camera.get_frame()
