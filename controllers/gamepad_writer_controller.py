@@ -164,22 +164,26 @@ class GamepadWriterController(IController):
         Update the gamepad state by reading the current inputs (non-blocking).
         """
         updated = []
+        print("Reading gamepad state...")
         try:
+            print("Reading gamepad state 2...")
             events = devices.gamepads[0].read()  # Non-blocking read
+            print("Reading gamepad state 3...")
             for event in events:
                 if event.ev_type in ('Key', 'Absolute'):
                     prev_state = self.gamepad_state.get(event.code, 0)
                     self.gamepad_state[event.code] = event.state
                     if prev_state != event.state:
                         updated.append((event.code, event.state))
+            print("Reading gamepad state 4...")
         except UnpluggedError:
             print("No gamepad connected.")
         except BlockingIOError:
+            print("No events available right now — expected in non-blocking mode")
             # No events available right now — expected in non-blocking mode
             pass
 
-        if updated:
-            updated = updated[-1:]
+        print("Reading gamepad state 5...")
         self.updated = updated
         return updated
 
