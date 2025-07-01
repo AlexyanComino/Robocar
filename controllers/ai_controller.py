@@ -41,9 +41,9 @@ class AIController(IController):
         self.fov = 160
         self.num_rays = 50
 
-        racing_model_path = "racing/models/modele3e9af0268.pth"
+        racing_model_path = "racing/models/modelefc4e32321.pth"
 
-        self.input_columns = ['speed', 'delta_speed', 'delta_steering', 'angle_closest_ray', 'avg_ray', 'std_ray', 'min_ray', 'max_ray',
+        self.input_columns = ['speed', 'delta_speed', 'angle_closest_ray', 'avg_ray', 'std_ray', 'min_ray', 'max_ray',
                               'avg_ray_left', 'avg_ray_center', 'avg_ray_right',
                               'ray_balance', 'acceleration'] + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
 
@@ -123,7 +123,6 @@ class AIController(IController):
             data["speed"] = speed
 
             data["delta_speed"] = data["speed"] - self.previous_data.get("speed", 0.0)
-            data["delta_steering"] = data["steering"] - self.previous_data.get("steering", 0.0)
 
             # List of ray values
             ray_values = np.array([data[f"ray_{i + 1}"] for i in range(self.num_rays)])
