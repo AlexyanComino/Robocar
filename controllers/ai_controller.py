@@ -50,7 +50,7 @@ class AIController(IController):
         self.output_columns = ["input_speed", "input_steering"]
 
         with TimeLogger("Loading Racing Simulator model", logger):
-            self.racing_model = MyModel(input_size=len(self.input_columns), hidden_layers=[16, 32, 64, 32, 16], output_size=2).to(self.device)
+            self.racing_model = MyModel(input_size=len(self.input_columns), hidden_layers=[32, 64, 128, 64, 32], output_size=2).to(self.device)
 
         with TimeLogger(f"Loading racing model weights from {racing_model_path}", logger):
             self.racing_model.load_state_dict(torch.load(racing_model_path, map_location=self.device))
