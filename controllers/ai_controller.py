@@ -41,7 +41,7 @@ class AIController(IController):
         self.fov = 160
         self.num_rays = 50
 
-        racing_model_path = "racing/models/modelb002121760.pth"
+        racing_model_path = "racing/models/model6bf5395f76.pth"
 
         self.input_columns = ['speed', 'delta_speed', 'angle_closest_ray', 'avg_ray', 'std_ray', 'min_ray', 'max_ray',
                               'avg_ray_left', 'avg_ray_center', 'avg_ray_right',
@@ -50,7 +50,7 @@ class AIController(IController):
         self.output_columns = ["input_speed", "input_steering"]
 
         with TimeLogger("Loading Racing Simulator model", logger):
-            self.racing_model = MyModel(input_size=len(self.input_columns), hidden_layers=[64], output_size=2).to(self.device)
+            self.racing_model = MyModel(input_size=len(self.input_columns), hidden_layers=[32, 32], output_size=2).to(self.device)
 
         with TimeLogger(f"Loading racing model weights from {racing_model_path}", logger):
             self.racing_model.load_state_dict(torch.load(racing_model_path, map_location=self.device))
