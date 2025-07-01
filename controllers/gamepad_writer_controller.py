@@ -58,10 +58,10 @@ class GamepadWriterController(IController):
         with TimeLogger(f"Loading racing model weights from {racing_model_path}", logger):
             self.racing_model.load_state_dict(torch.load(racing_model_path, map_location=self.device))
 
-        self.racing_model.eval()
-
-        example_input = torch.randn(57, device=self.device)
-        self.racing_model = torch.jit.trace(self.racing_model, example_input)
+        with TimeLogger("Setting Racing model to evaluation mode", logger):
+            self.racing_model.eval()
+            example_input = torch.randn(len(self.input_columns), device=self.device)
+            self.racing_model = torch.jit.trace(self.racing_model, example_input)
 
         self.gamepad_state = {}
         self.updated = []
