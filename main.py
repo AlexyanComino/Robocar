@@ -66,7 +66,7 @@ def main():
     logger.info("Starting Robocar main script")
     args = parse_args()
 
-    car = Car(port=PORT, power_limit=0.03)
+    car = Car(port=PORT, power_limit=0.05)
     controller_cls = {
         "gamepad": GamepadController,
         "ai": lambda car: AIController(car, mask_model_dir=args.mask_model, streaming=args.stream),
