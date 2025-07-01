@@ -42,10 +42,18 @@ class GamepadWriterController(IController):
         self.streaming = streaming
 
         # Setup Racing Simulator
-        racing_model_path = "modelbf50f8732b.pth"
+        self.fov = 160
+        self.num_rays = 50
+        racing_model_path = "racing/models/modela54bb30130.pth"
+
+        self.input_columns = ['speed', 'delta_speed', 'angle_closest_ray', 'avg_ray', 'std_ray', 'min_ray', 'max_ray',
+                              'avg_ray_left', 'avg_ray_center', 'avg_ray_right',
+                              'ray_balance', 'acceleration'] + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
+
+        self.output_columns = ["input_speed", "input_steering"]
 
         with TimeLogger("Loading Racing Simulator model", logger):
-            self.racing_model = MyModel(input_size=57, hidden_layers=[64, 64], output_size=2).to(self.device)
+            self.racing_model = MyModel(input_size=len(self.input_columns), hidden_layers=[64, 128, 256, 128, 64], output_size=2).to(self.device)
 
         with TimeLogger(f"Loading racing model weights from {racing_model_path}", logger):
             self.racing_model.load_state_dict(torch.load(racing_model_path, map_location=self.device))
@@ -76,10 +84,6 @@ class GamepadWriterController(IController):
                 image_size=(self.height, self.width),
                 device=self.device
             )
-
-        # Racing Simulator data
-        self.fov = 160
-        self.num_rays = 50
 
         # self.input_columns = ['speed', 'delta_speed', 'angle_closest_ray',
         #                       'avg_ray_left', 'avg_ray_center', 'avg_ray_right',
