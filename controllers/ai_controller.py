@@ -37,6 +37,10 @@ class AIController(IController):
         self.streaming = streaming
 
         # Setup Racing Simulator
+        # Racing Simulator data
+        self.fov = 160
+        self.num_rays = 50
+        
         racing_model_path = "racing/modela27a1b0497.pth"
 
         self.input_columns = ['speed', 'delta_speed', 'delta_steering', 'angle_closest_ray', 'avg_ray', 'std_ray', 'min_ray', 'max_ray',
@@ -71,10 +75,6 @@ class AIController(IController):
                 image_size=(self.height, self.width),
                 device=self.device
             )
-
-        # Racing Simulator data
-        self.fov = 160
-        self.num_rays = 50
 
         self.previous_data = {}
 
