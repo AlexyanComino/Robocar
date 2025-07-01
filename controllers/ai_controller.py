@@ -41,7 +41,7 @@ class AIController(IController):
         self.fov = 160
         self.num_rays = 50
 
-        racing_model_path = "racing/models/modelefc4e32321.pth"
+        racing_model_path = "racing/models/model327c28500f.pth"
 
         self.input_columns = ['speed', 'delta_speed', 'angle_closest_ray', 'avg_ray', 'std_ray', 'min_ray', 'max_ray',
                               'avg_ray_left', 'avg_ray_center', 'avg_ray_right',
