@@ -37,18 +37,24 @@ class AIController(IController):
         self.streaming = streaming
 
         # Setup Racing Simulator
-        racing_model_path = "modelbf50f8732b.pth"
+        racing_model_path = "racing/modela27a1b0497.pth"
+
+        self.input_columns = ['speed', 'delta_speed', 'delta_steering', 'angle_closest_ray', 'avg_ray', 'std_ray', 'min_ray', 'max_ray',
+                              'avg_ray_left', 'avg_ray_center', 'avg_ray_right',
+                              'ray_balance', 'acceleration'] + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
+
+        self.output_columns = ["input_speed", "input_steering"]
 
         with TimeLogger("Loading Racing Simulator model", logger):
-            self.racing_model = MyModel(input_size=57, hidden_layers=[64, 64], output_size=2).to(self.device)
+            self.racing_model = MyModel(input_size=len(self.input_columns), hidden_layers=[16, 32, 64, 32, 16], output_size=2).to(self.device)
 
         with TimeLogger(f"Loading racing model weights from {racing_model_path}", logger):
             self.racing_model.load_state_dict(torch.load(racing_model_path, map_location=self.device))
 
-        self.racing_model.eval()
-
-        example_input = torch.randn(57, device=self.device)
-        self.racing_model = torch.jit.trace(self.racing_model, example_input)
+        with TimeLogger("Setting Racing model to evaluation mode", logger):
+            self.racing_model.eval()
+            example_input = torch.randn(len(self.input_columns), device=self.device)
+            self.racing_model = torch.jit.trace(self.racing_model, example_input)
 
         # Setup Mask Generator
         with TimeLogger("Loading Mask Generator model", logger):
@@ -69,16 +75,6 @@ class AIController(IController):
         # Racing Simulator data
         self.fov = 160
         self.num_rays = 50
-
-
-        self.input_columns = ['speed', 'delta_speed', 'angle_closest_ray',
-                              'avg_ray_left', 'avg_ray_center', 'avg_ray_right',
-                              'ray_balance'] + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
-
-        self.output_columns = ["input_speed", "input_steering"]
-
-        self.init_columns = ["speed", "steering"] + [f"pos_{coord}" for coord in ['x', 'y', 'z']] \
-                    + [f"ray_{i}" for i in range(1, self.num_rays + 1)]
 
         self.previous_data = {}
 
@@ -116,7 +112,7 @@ class AIController(IController):
         Returns:
             Scaled input data as a dictionary.
         """
-        rays_data, image_rays = self.get_rays_data(image, generate_image=generate_image)
+        data, image_rays = self.get_rays_data(image, generate_image=generate_image)
 
         with TimeLogger("Calculating features", logger):
             # For Power limit 0.03 is 1.55
@@ -124,38 +120,38 @@ class AIController(IController):
             speed = self.car.get_speed() / 1.55
             speed = max(0.0, min(speed, 1.0))  # Clamp speed to [0, 1]
 
-            data = dict.fromkeys(self.init_columns, 0.0)
-
-            ray_values = np.fromiter((rays_data[f"ray_{i}"] for i in range(self.num_rays)), dtype=float)
-
-            for i in range(self.num_rays):
-                data[f"ray_{i+1}"] = ray_values[i]
-
-            # Basic data
             data["speed"] = speed
-            data["delta_speed"] = speed - self.previous_data.get("speed", 0.0)
+
+            data["delta_speed"] = data["speed"] - self.previous_data.get("speed", 0.0)
             data["delta_steering"] = data["steering"] - self.previous_data.get("steering", 0.0)
 
-            # Closest ray and angle
-            closest_ray_index = ray_values.argmin()
+            # List of ray values
+            ray_values = np.array([data[f"ray_{i + 1}"] for i in range(self.num_rays)])
+
+            # Find the closest ray to the car
+            closest_ray_index = np.argmin(ray_values)
             angle_step = self.fov / (self.num_rays - 1)
-            data["angle_closest_ray"] = -self.fov / 2 + closest_ray_index * angle_step
+            data["angle_closest_ray"] = -(self.fov / 2) + closest_ray_index * angle_step
 
-            # Basic stats
-            data["avg_ray"] = ray_values.mean()
-            data["std_ray"] = ray_values.std()
-            data["min_ray"] = ray_values.min()
-            data["max_ray"] = ray_values.max()
+            # Calculate the average, standard deviation, min, and max of the ray values
+            data["avg_ray"] = np.mean(ray_values)
+            data["std_ray"] = np.std(ray_values)
+            data["min_ray"] = np.min(ray_values)
+            data["max_ray"] = np.max(ray_values)
 
-            n = self.num_rays
-            third = n // 3
-            data["avg_ray_left"] = ray_values[:third].mean()
-            data["avg_ray_center"] = ray_values[third:2*third].mean()
-            data["avg_ray_right"] = ray_values[2*third:].mean()
+            left_indices = range(self.num_rays // 3)
+            center_indices = range(self.num_rays // 3, 2 * self.num_rays // 3)
+            right_indices = range(2 * self.num_rays // 3, self.num_rays)
+
+            data["avg_ray_left"] = np.mean(ray_values[list(left_indices)])
+            data["avg_ray_center"] = np.mean(ray_values[list(center_indices)])
+            data["avg_ray_right"] = np.mean(ray_values[list(right_indices)])
+
             data["ray_balance"] = data["avg_ray_right"] - data["avg_ray_left"]
 
-            # Acceleration
-            data["acceleration"] = data["delta_speed"] - self.previous_data.get("delta_speed", 0.0)
+            # Acceleration calculation
+            prev_delta_speed = self.previous_data.get("delta_speed", 0.0)
+            data["acceleration"] = data["delta_speed"] - prev_delta_speed
 
             # Update state
             self.previous_data = data.copy()

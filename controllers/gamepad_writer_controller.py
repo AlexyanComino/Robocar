@@ -139,7 +139,6 @@ class GamepadWriterController(IController):
 
             data["speed"] = speed
             data["steering"] = self.read_steering_raw()
-            print(f"Steering raw value: {data['steering']}")
 
             data["delta_speed"] = data["speed"] - self.previous_data.get("speed", 0.0)
             data["delta_steering"] = data["steering"] - self.previous_data.get("steering", 0.0)
