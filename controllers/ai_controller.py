@@ -53,14 +53,14 @@ class AIController(IController):
             self.racing_model = MyModel(input_size=len(self.input_columns), hidden_layers=[64, 64], output_size=2).to(self.device)
 
         with TimeLogger(f"Loading Racing model weights from {racing_model_path}", logger):
-            self.racing_model.load_state_dict(torch.load(racing_model_path, map_location=self.device))
+            self.racing_model = torch.jit.load(racing_model_path.replace('.pth', '.pt'), map_location=self.device)
 
         with TimeLogger("Setting Racing model to evaluation mode", logger):
             self.racing_model.eval()
-            example_input = torch.randn(len(self.input_columns), device=self.device)
-            self.racing_model = torch.jit.trace(self.racing_model, example_input)
-            torch.jit.save(self.racing_model, racing_model_path.replace('.pth', '.pt'))
-            logger.info(f"Racing model saved to {racing_model_path.replace('.pth', '.pt')}")
+            # example_input = torch.randn(len(self.input_columns), device=self.device)
+            # self.racing_model = torch.jit.trace(self.racing_model, example_input)
+            # torch.jit.save(self.racing_model, racing_model_path.replace('.pth', '.pt'))
+            # logger.info(f"Racing model saved to {racing_model_path.replace('.pth', '.pt')}")
 
         raise NotImplementedError("Racing Simulator is not implemented yet.")
 
