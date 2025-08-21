@@ -31,9 +31,9 @@ The car follows a perception → decision → action pipeline:
 - **Real-world camera captures** from the car  
 - **External datasets** for lane detection and driving tasks  
 
-## Results  
-➡️ *[Insert GIF or screenshot of the car driving autonomously]*  
-➡️ *[Insert sample outputs: lane mask vs camera feed]*  
+## Example
+
+![robocar](https://github.com/user-attachments/assets/651aae1c-83d0-4c0c-bc17-0b2c1820cea4)
 
 ## Team  
 - Alexyan Comino
