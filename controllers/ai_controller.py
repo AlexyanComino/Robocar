@@ -25,7 +25,7 @@ class AIController(IController):
             from mask_generator.models.utils import load_pad_divisor_from_run_dir
             from mask_generator.trt_wrapper import TRTWrapper
             from mask_generator.transforms import KorniaInferTransform
-            from racing.model import MyModel
+            from racing.utils import load_racing_model
 
             import torch
 
@@ -50,19 +50,7 @@ class AIController(IController):
         self.output_columns = ["input_speed", "input_steering"]
 
         with TimeLogger("Loading Racing Simulator model", logger):
-            self.racing_model = MyModel(input_size=len(self.input_columns), hidden_layers=[64, 64], output_size=2).to(self.device)
-
-        with TimeLogger(f"Loading Racing model weights from {racing_model_path}", logger):
-            self.racing_model = torch.jit.load(racing_model_path.replace('.pth', '.pt'), map_location=self.device)
-
-        with TimeLogger("Setting Racing model to evaluation mode", logger):
-            self.racing_model.eval()
-            # example_input = torch.randn(len(self.input_columns), device=self.device)
-            # self.racing_model = torch.jit.trace(self.racing_model, example_input)
-            # torch.jit.save(self.racing_model, racing_model_path.replace('.pth', '.pt'))
-            # logger.info(f"Racing model saved to {racing_model_path.replace('.pth', '.pt')}")
-
-        raise NotImplementedError("Racing Simulator is not implemented yet.")
+            self.racing_model = load_racing_model(racing_model_path, self.input_columns, [64, 64], 2)
 
         # Setup Mask Generator
         with TimeLogger("Loading Mask Generator model", logger):
