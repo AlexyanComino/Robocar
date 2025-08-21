@@ -30,6 +30,7 @@ def load_racing_model(racing_model_path: str, input_columns: list, hidden_layers
         model.eval()
     else:
         logger.info(f"Traced Racing model not found, creating a new one.")
+        model.eval()
         example_input = torch.randn(len(input_columns), device=device)
         model = torch.jit.trace(model, example_input)
         torch.jit.save(model, racing_model_path.replace('.pth', '.pt'))
