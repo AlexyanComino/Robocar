@@ -35,6 +35,11 @@ The car follows a perception → decision → action pipeline:
 
 ![robocar](https://github.com/user-attachments/assets/651aae1c-83d0-4c0c-bc17-0b2c1820cea4)
 
+## 🔗 Related repositories
+
+- ![RacingSimulator](https://github.com/MatysLgr/RacingSimulator): Decision AI
+- ![MaskGenerator](https://github.com/MatysLgr/MaskGenerator): Perception AI
+
 ## Team  
 - Alexyan Comino
 - Matys Laguerre
